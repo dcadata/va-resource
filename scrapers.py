@@ -272,8 +272,8 @@ class ElectionsCandidateRowScraper:
         self.winner = None
         self.party = None
         self.incumbency = None
+        self.money_raised_text = None
         self.money_raised = None
-        self.money_raised_float = None
         self._scrape()
 
     def _scrape(self):
@@ -306,8 +306,8 @@ class ElectionsCandidateRowScraper:
 
     def _get_money_raised(self):
         if self.money_link_box:
-            self.money_raised = self.money_link_box.text
-            self.money_raised_float = money_to_float(self.money_raised)
+            self.money_raised_text = self.money_link_box.text
+            self.money_raised = money_to_float(self.money_raised_text)
 
 class IEScraper:
     def __init__(self, driver, vpap_candidate_num, election_link):
