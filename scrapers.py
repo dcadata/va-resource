@@ -124,7 +124,14 @@ class LegislatorScraper(Requestor):
 
     def _scrape(self):
         self._get_bio_overview()
-        self._adjust_bio_length_of_service()
+        try:
+            self._adjust_bio_length_of_service()
+        except KeyError:
+            self.bio.update({
+                'bio_member_since': None,
+                'bio_years_of_service': None,
+            })
+
         del self.soup
 
     def _get_bio_overview(self):
