@@ -11,7 +11,7 @@ HOMEPAGE = 'https://www.vpap.org'
 def safe_int(text):
     text = text.strip()
     try:
-        floated = float(text)
+        floated = int(text)
     except TypeError:
         floated = text
     return floated
