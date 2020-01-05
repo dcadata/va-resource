@@ -60,9 +60,15 @@ class MultiCandidateResearcher:
         for candidate in candidate_list:
             try:
                 cr = CandidateResearcher(self.driver, candidate)
+
                 self.result.append(cr.result)
                 self.basic = concat((self.basic, cr.basic), sort=False)
+
                 self.full = concat((self.full, cr.full), sort=False)
+                for col in self.full.columns:
+                    if col.startswith(str(2019)) or col.startswith(str(2017)):
+                        self.full[col].fillna(inplace=True)
+
             except Exception as exc:
                 print(candidate, str(exc))
 
