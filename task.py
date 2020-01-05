@@ -2,35 +2,27 @@ from pandas import DataFrame, concat
 from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScraper, get_driver
 
 class CandidateResearcher:
-    def __init__(self):
-        self.result = []
+    def __init__(self, driver, candidate_name):
+        self.driver = driver
+        self.candidate_name = candidate_name
+        self.result = {}
         self.basic = DataFrame()
         self.full = DataFrame()
-        self.driver = get_driver()
 
-    def research(self, candidate_name):
-        try:
-            self.scrape_candidate_data(candidate_name)
-            self.create_df()
-        except Exception as exc:
-            print(candidate_name, str(exc))
-
-    def scrape_candidate_data(self, candidate_name):
+    def _scrape_data(self, candidate_name):
         search = Searcher(candidate_name)
         cand = CandidateScraper(search.candidate_page_link)
         elec = ElectionsScraper(search.elections_page_link, cand.vpap_candidate_num, self.driver)
         legis = LegislatorScraper(search.legislator_page_link)
 
-        self.temp_result = search.result.copy()
-        self.temp_result.update(cand.__dict__)
-        self.temp_result.update(elec.result)
-        self.temp_result.update(legis.bio)
+        self.result = search.result.copy()
+        self.result.update(cand.__dict__)
+        self.result.update(elec.result)
+        self.result.update(legis.bio)
 
-        self.result.append(self.temp_result)
-
-    def create_df(self):
-        self.temp_df = DataFrame([self.temp_result])
-        self.basic = concat((self.basic, self.temp_df), sort=False)
+    def _create_dataframes(self):
+        self.basic = DataFrame([self.result])
+        self.full = self.basic.copy()
 
         for year in (2019, 2017):
             try:
@@ -43,36 +35,50 @@ class CandidateResearcher:
             except KeyError:
                 pass
 
-        self.full = concat((self.full, self.temp_df), sort=False)
-
     def _determine_candidate_party_in_each_year_and_drop_if_candidate_did_not_run(self, year):
-        if self.temp_df.loc[0, 'candidate_yoda_name'] == self.temp_df.loc[0, f'{year}_name_D']:
-            self.temp_df[f'{year}_candidate_party'] = ['D']
-        elif self.temp_df.loc[0, 'candidate_yoda_name'] == self.temp_df.loc[0, f'{year}_name_R']:
-            self.temp_df[f'{year}_candidate_party'] = ['R']
+        if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_D']:
+            self.full[f'{year}_candidate_party'] = ['D']
+        elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_R']:
+            self.full[f'{year}_candidate_party'] = ['R']
         else:
-            self.temp_df = self.temp_df.drop(columns=[col for col in self.temp_df.columns if f'{year}' in col])
+            self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
 
     def _determine_if_candidate_is_winner(self, year):
-        candidate_party = self.temp_df.loc[0, f'{year}_candidate_party']
-        winner = self.temp_df.loc[0, f'{year}_winner_{candidate_party}']
-        self.temp_df[f'{year}_candidate_is_winner'] = [winner]
+        candidate_party = self.full.loc[0, f'{year}_candidate_party']
+        winner = self.full.loc[0, f'{year}_winner_{candidate_party}']
+        self.full[f'{year}_candidate_is_winner'] = [winner]
+
+class MultiCandidateResearcher:
+    def __init__(self, candidate_list):
+        self.candidate_list = candidate_list
+        self.result = []
+        self.basic = DataFrame()
+        self.full = DataFrame()
+        self.driver = get_driver()
+
+    def research(self):
+        for candidate in self.candidate_list:
+            try:
+                cr = CandidateResearcher(self.driver, candidate)
+                self.result.append(cr.result)
+                self.basic = concat((self.basic, cr.basic), sort=False)
+                self.full = concat((self.full, cr.full), sort=False)
+            except Exception as exc:
+                print(candidate, str(exc))
 
 
 def main():
-    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n'))
+    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n')[:3])
 
-    cr = CandidateResearcher()
-    for candidate in candidate_list:
-        cr.research(candidate)
+    mcr = MultiCandidateResearcher(candidate_list)
 
-    # cr.full_dropped = cr.full.dropna(subset=['search_string'])
+    full_dropped = mcr.full.dropna(subset=['search_string'])
 
-    cr.basic.to_csv('basic.csv', index=False)
-    cr.full.to_csv('full.csv', index=False)
-    # cr.full_dropped.to_csv('full_dropped.csv', index=False)
+    mcr.basic.to_csv('basic.csv', index=False)
+    mcr.full.to_csv('full.csv', index=False)
+    full_dropped.to_csv('full_dropped.csv', index=False)
 
-    cr.driver.quit()
+    mcr.driver.quit()
 
 
 if __name__ == '__main__':
