@@ -8,6 +8,14 @@ from selenium.common.exceptions import NoSuchElementException
 HOMEPAGE = 'https://www.vpap.org'
 
 
+def safe_int(text):
+    text = text.strip()
+    try:
+        floated = float(text)
+    except TypeError:
+        floated = text
+    return floated
+
 def money_to_float(money_amount):
     if money_amount:
         try:
@@ -111,11 +119,15 @@ class LegislatorScraper(Requestor):
         try:
             super().__init__(url=legislator_page_link)
             self._scrape()
-            del self.soup
         except AssertionError:
             pass  # candidate was never a legislator
 
     def _scrape(self):
+        self._get_bio_overview()
+        self._adjust_bio_length_of_service()
+        del self.soup
+
+    def _get_bio_overview(self):
         panel = self.soup.find('div', class_='panel-group').find('div', class_='panel-body').find(
             'div', class_='panel-body')
 
@@ -130,6 +142,16 @@ class LegislatorScraper(Requestor):
                 )
                 bio_attribute_value = get_text_from_elem(attr.find('strong'))
                 self.bio.update({bio_attribute_name_adjusted: bio_attribute_value})
+
+    def _adjust_bio_length_of_service(self):
+            bio_member_since, bio_years_of_service = self.bio['bio_length_of_service'].split(';', 1)
+            bio_member_since = bio_member_since.replace('Member since ', '')
+            bio_years_of_service = bio_years_of_service.replace(' years of service', '')
+            self.bio.update({
+                'bio_member_since': safe_int(bio_member_since),
+                'bio_years_of_service': safe_int(bio_years_of_service),
+            })
+            del self.bio['bio_length_of_service']
 
 class CandidateScraper(Requestor):
     def __init__(self, candidate_page_link):
