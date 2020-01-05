@@ -67,7 +67,7 @@ class MultiCandidateResearcher:
                 self.full = concat((self.full, cr.full), sort=False)
                 for col in self.full.columns:
                     if col.startswith(str(2019)) or col.startswith(str(2017)):
-                        self.full[col].fillna(inplace=True)
+                        self.full[col].fillna(inplace=True, value='did not run')
 
             except Exception as exc:
                 print(candidate, str(exc))
