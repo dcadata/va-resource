@@ -1,0 +1,6 @@
+__pycache__/
+.idea/
+geckodriver.log
+*.csv
+candidate_list.txt
+instructions.txt
