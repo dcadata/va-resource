@@ -71,7 +71,7 @@ class MultiCandidateResearcher:
 def main():
     mcr = MultiCandidateResearcher()
 
-    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n')[7:10])
+    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n'))
 
     mcr.research(candidate_list)
 
