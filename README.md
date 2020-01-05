@@ -6,9 +6,21 @@ These scripts enable you to scrape VPAP. They currently include only specific fu
 
 CSVs are published with data for specific requested candidates.
 
-Uses Requests, BeautifulSoup, Pandas.
+Uses Requests, BeautifulSoup, Selenium, Pandas.
+
+***
 
 ## TO-DO
+
+### Parse out district from election title
+
+* e.g. `2019 House of Delegates - District 10 - Regular General` => `HD-10`
+
+### Ballotpedia scraper(s) (separate repo)
+
+***
+
+## Completed
 
 ### Functionality to scrape Independent Expenditures (IE):
 
@@ -18,11 +30,5 @@ Uses Requests, BeautifulSoup, Pandas.
 
 * Another option is to use Selenium to load Javascript, thus loading the SVG. This is a less preferred option because it is more time consuming to run; however, there aren't *that* many candidates in total, so it's still very possible to do this if the second option above doesn't work out.
 
-* **This has been successfully completed using Selenium!**
-
-### Parse out district from election title
-
-* `2019 House of Delegates - District 10 - Regular General` => `HD-10`
-
-### Ballotpedia scraper(s)
+* **Completed successfully using Selenium!**
 
