@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+from selenium.common.exceptions import NoSuchElementException
 
 HOMEPAGE = 'https://www.vpap.org'
 
@@ -308,7 +309,10 @@ class IEScraper:
     def _get_svg_elem(self):
         chart_elem = self.details_elem.find_element_by_id('svgchart')
         svg_elem = chart_elem.find_element_by_tag_name('svg')
-        self.barlink_elems = svg_elem.find_elements_by_class_name('barlink')
+        try:
+            self.barlink_elems = svg_elem.find_elements_by_class_name('barlink')
+        except NoSuchElementException:
+            self.barlink_elems = []
 
     def _get_barlinks(self):
         for barlink_elem in self.barlink_elems:
