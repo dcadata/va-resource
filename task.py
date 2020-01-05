@@ -8,9 +8,11 @@ class CandidateResearcher:
         self.result = {}
         self.basic = DataFrame()
         self.full = DataFrame()
+        self._scrape_data()
+        self._create_dataframes()
 
-    def _scrape_data(self, candidate_name):
-        search = Searcher(candidate_name)
+    def _scrape_data(self):
+        search = Searcher(self.candidate_name)
         cand = CandidateScraper(search.candidate_page_link)
         elec = ElectionsScraper(search.elections_page_link, cand.vpap_candidate_num, self.driver)
         legis = LegislatorScraper(search.legislator_page_link)
@@ -49,15 +51,14 @@ class CandidateResearcher:
         self.full[f'{year}_candidate_is_winner'] = [winner]
 
 class MultiCandidateResearcher:
-    def __init__(self, candidate_list):
-        self.candidate_list = candidate_list
+    def __init__(self):
         self.result = []
         self.basic = DataFrame()
         self.full = DataFrame()
         self.driver = get_driver()
 
-    def research(self):
-        for candidate in self.candidate_list:
+    def research(self, candidate_list):
+        for candidate in candidate_list:
             try:
                 cr = CandidateResearcher(self.driver, candidate)
                 self.result.append(cr.result)
@@ -70,7 +71,8 @@ class MultiCandidateResearcher:
 def main():
     candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n')[:3])
 
-    mcr = MultiCandidateResearcher(candidate_list)
+    mcr = MultiCandidateResearcher()
+    mcr.research(candidate_list)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
 
