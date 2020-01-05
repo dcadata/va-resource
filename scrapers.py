@@ -7,7 +7,6 @@ from selenium.common.exceptions import NoSuchElementException
 
 HOMEPAGE = 'https://www.vpap.org'
 
-
 def safe_int(text):
     text = text.strip()
     try:
@@ -165,54 +164,41 @@ class CandidateScraper(Requestor):
         self.candidate_page_link = candidate_page_link
         self.vpap_candidate_num = None
         self.name = None
-        self.chamber = None
-        # self.party = None
-        self.bio_text = None
+        self.summary = None
         super().__init__(url=self.candidate_page_link)
         self._scrape()
 
     def _scrape(self):
-        self._get_candidate_number()
-        self._get_bio_box()
-        self._get_name()
-        self._get_bio_data_and_party()
-        del self.soup, self.bio_box, self.bio_para_box, self.candidate_page_link
-
-    def _get_candidate_number(self):
         self.vpap_candidate_num = self.candidate_page_link.split('/candidates/', 1)[1].split('/', 1)[0]
-
-    def _get_bio_box(self):
-        self.bio_box = self.soup.find('div', {'style': 'float:left;'})
+        self.summary_box = self.soup.find('div', {'style': 'float:left;'})
+        self._get_name()
+        self._get_summary_data()
+        del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box
 
     def _get_name(self):
-        name_box = self.bio_box.find('h3', {'style': 'margin-top:0;'})
+        name_box = self.summary_box.find('h3', {'style': 'margin-top:0;'})
         if name_box:
             self.name = name_box.text
 
-    def _get_bio_data_and_party(self):
-        bio_para_boxes = self.bio_box.find_all('p')
-        self.bio_para_box = bio_para_boxes[0]
+    def _get_summary_data(self):
+        summary_para_boxes = self.summary_box.find_all('p')
+        self.summary_para_box = summary_para_boxes[0]
+        if self.summary_para_box:
+            self.summary = self.summary_para_box.text
+            self.summary = self.summary.strip().split('\n')[0].strip()
 
-        if self.bio_para_box:
-            self._get_bio_data()
-            # self._get_bio_party()
+    def _get_chamber_from_summary(self):
+        if self.summary and not self.chamber:
+            if (
+                    'house' in self.summary.lower() or 'assembly' in self.summary.lower()
+                    or 'delegate' in self.summary.lower()
+            ):
+                self.chamber = 'lower'
+            elif 'senate' in self.summary.lower():
+                self.chamber = 'upper'
 
-    def _get_bio_data(self):
-        self.bio_text = self.bio_para_box.text.strip()
-        if self.bio_text:
-            if not self.chamber:
-                if (
-                        'house' in self.bio_text.lower() or 'assembly' in self.bio_text.lower()
-                        or 'delegate' in self.bio_text.lower()
-                ):
-                    self.chamber = 'lower'
-                elif 'senate' in self.bio_text.lower():
-                    self.chamber = 'upper'
-
-        self.bio_text = self.bio_text.split('\n')[0].strip()
-
-    def _get_bio_party(self):
-        party_box = self.bio_para_box.find('strong')
+    def _get_party_from_summary(self):
+        party_box = self.summary_para_box.find('strong')
         if party_box:
             self.party = party_box.text[0]
 
