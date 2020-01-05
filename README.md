@@ -12,8 +12,7 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
 
 ## Notes
 
-* `bio_` fields come from the Legislators page Overview section ([example here](https://www.vpap.org/legislators/289576-wendy-gooditis/)), so they are available only for candidates who were/are Legislators, i.e. those who previously served or are currently serving. Candidates who ran and lost do not have `bio_` fields.
-  * However, some fields can be parsed (manually for now) out of the `bio_text` field.
+* `bio_` fields come from the Legislators page Overview section ([example here](https://www.vpap.org/legislators/289576-wendy-gooditis/)), so generally they're only available for candidates who were/are legislators. Candidates who ran and lost do not have `bio_` fields. `bio_` fields are also often missing for candidates who did serve as legislators. However, some fields can be parsed (manually for now) out of the `bio_text` field.
 
 ***
 
