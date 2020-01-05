@@ -28,27 +28,26 @@ class CandidateResearcher:
 
         for year in (2019, 2017):
             try:
-                self._determine_candidate_party_in_each_year_and_drop_if_candidate_did_not_run(year)
+                self._add_fields_to_full_dataframe(year)
             except KeyError:
                 pass
 
-            try:
-                self._determine_if_candidate_is_winner(year)
-            except KeyError:
-                pass
+    def _add_fields_to_full_dataframe(self, year):
+        self.full[f'{year}_candidate_party'] = [None]
+        self.full[f'{year}_candidate_is_winner'] = [None]
 
-    def _determine_candidate_party_in_each_year_and_drop_if_candidate_did_not_run(self, year):
         if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_D']:
             self.full[f'{year}_candidate_party'] = ['D']
+            winner = self.full.loc[0, f'{year}_winner_D']
+            self.full[f'{year}_candidate_is_winner'] = [winner]
+
         elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_R']:
             self.full[f'{year}_candidate_party'] = ['R']
+            winner = self.full.loc[0, f'{year}_winner_R']
+            self.full[f'{year}_candidate_is_winner'] = [winner]
+
         else:
             self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
-
-    def _determine_if_candidate_is_winner(self, year):
-        candidate_party = self.full.loc[0, f'{year}_candidate_party']
-        winner = self.full.loc[0, f'{year}_winner_{candidate_party}']
-        self.full[f'{year}_candidate_is_winner'] = [winner]
 
 class MultiCandidateResearcher:
     def __init__(self):
@@ -71,7 +70,7 @@ class MultiCandidateResearcher:
 def main():
     mcr = MultiCandidateResearcher()
 
-    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n'))
+    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n')[:2])
 
     mcr.research(candidate_list)
 
