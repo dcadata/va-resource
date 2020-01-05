@@ -1,6 +1,6 @@
 __pycache__/
 .idea/
 geckodriver.log
-*.csv
+/*.csv
 candidate_list.txt
 instructions.txt
