@@ -304,15 +304,15 @@ class IEScraper:
 
     def _get_ie_details_elem(self):
         self.driver.get(self.election_link)
-        self.details_elem = self.driver.find_element_by_id('ie_details')
+        try:
+            self.details_elem = self.driver.find_element_by_id('ie_details')
+        except NoSuchElementException:
+            self.details_elem = None
 
     def _get_svg_elem(self):
         chart_elem = self.details_elem.find_element_by_id('svgchart')
         svg_elem = chart_elem.find_element_by_tag_name('svg')
-        try:
-            self.barlink_elems = svg_elem.find_elements_by_class_name('barlink')
-        except NoSuchElementException:
-            self.barlink_elems = []
+        self.barlink_elems = svg_elem.find_elements_by_class_name('barlink')
 
     def _get_barlinks(self):
         for barlink_elem in self.barlink_elems:
