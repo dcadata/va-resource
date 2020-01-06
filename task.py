@@ -76,16 +76,16 @@ class MultiCandidateResearcher:
 def main():
     mcr = MultiCandidateResearcher()
 
-    candidate_list = set(i.strip() for i in open('candidate_list.txt').read().strip().split('\n'))
+    candidate_list = set(i.strip() for i in open('2019_upper_candidate_list.txt').read().strip().split('\n'))
 
     mcr.research(candidate_list)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
 
-    mcr.basic.to_csv('basic.csv', index=False)
     mcr.full.to_csv('full.csv', index=False)
 
     if len(full_dropped) != len(mcr.full):
+        mcr.basic.to_csv('basic.csv', index=False)
         full_dropped.to_csv('full_dropped.csv', index=False)
 
     mcr.driver.quit()
