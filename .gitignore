@@ -3,4 +3,3 @@ __pycache__/
 geckodriver.log
 /*.csv
 2019_upper_candidate_list.txt
-instructions.txt
