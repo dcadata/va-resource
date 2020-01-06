@@ -2,5 +2,5 @@ __pycache__/
 .idea/
 geckodriver.log
 /*.csv
-candidate_list.txt
+2019_upper_candidate_list.txt
 instructions.txt
