@@ -5,7 +5,6 @@ def fillna_with_didnotrun(df):
     for col in df.columns:
         if col.startswith(str(2019)) or col.startswith(str(2017)):
             df[col].fillna(inplace=True, value='did not run')
-    # return df
 
 
 class CandidateResearcher:
@@ -15,6 +14,7 @@ class CandidateResearcher:
         self.result = {}
         self.basic = DataFrame()
         self.full = DataFrame()
+        self.chambers_present = set()
         self._scrape_data()
         self._create_dataframes()
 
@@ -32,12 +32,19 @@ class CandidateResearcher:
     def _create_dataframes(self):
         self.basic = DataFrame([self.result])
         self.full = self.basic.copy()
+        self._identify_chambers_present()
 
         for year in (2019, 2017):
             try:
                 self._add_fields_to_full_dataframe(year)
             except KeyError:
                 pass
+
+    def _identify_chambers_present(self):
+        for col in self.full.columns:
+            for chamber in {'lower', 'upper', 'other'}:
+                if chamber in col.lower():
+                    self.chambers_present.add(chamber)
 
     def _add_fields_to_full_dataframe(self, year):
         self.full[f'{year}_candidate_party'] = [None]
