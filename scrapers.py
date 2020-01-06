@@ -43,7 +43,6 @@ class Requestor:
     def __init__(self, url, params=None):
         r = get(url, params=params, timeout=20)
         sleep(2)
-        # self.resolved_url = r.url
         self.soup = BeautifulSoup(r.text, 'lxml')
         if not r.ok or not self.soup:
             raise AssertionError('Bad request and/or bad Soup')
@@ -142,9 +141,8 @@ class LegislatorScraper(Requestor):
             for attr in bio_attributes:
                 bio_attribute_name = get_text_from_elem(attr.find('span', class_='small_upper'))
                 bio_attribute_name_adjusted = (
-                    'bio_' +
-                    bio_attribute_name[:-1].strip().lower()
-                        .replace(' ', '_').replace('/', '').replace('__', '_')
+                    'bio_' + bio_attribute_name[:-1].strip().lower()
+                    .replace(' ', '_').replace('/', '').replace('__', '_')
                 )
                 bio_attribute_value = get_text_from_elem(attr.find('strong'))
                 self.bio.update({bio_attribute_name_adjusted: bio_attribute_value})
@@ -181,8 +179,7 @@ class CandidateScraper(Requestor):
             self.name = name_box.text
 
     def _get_summary_data(self):
-        summary_para_boxes = self.summary_box.find_all('p')
-        self.summary_para_box = summary_para_boxes[0]
+        self.summary_para_box = self.summary_box.find('p')
         if self.summary_para_box:
             self.summary = self.summary_para_box.text
             self.summary = self.summary.strip().split('\n')[0].strip()
