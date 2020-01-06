@@ -47,34 +47,35 @@ class CandidateResearcher:
                     self.chambers_present.add(chamber)
 
     def _add_fields_to_full_dataframe(self, year):
-        self.full[f'{year}_candidate_party'] = [None]
-        self.full[f'{year}_is_winner'] = [None]
-        self.full[f'{year}_is_incumbent'] = [None]
-        self.full[f'{year}_raised'] = [None]
+        for chamber in self.chambers_present:
+            self._create_fields_with_default_values(year, chamber)
 
-            if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_D']:
-                self._add_fields_based_on_party(year, 'D')
-            elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_R']:
-                self._add_fields_based_on_party(year, 'R')
+            if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_D']:
+                self._add_fields_based_on_party(year, chamber, 'D')
+            elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_R']:
+                self._add_fields_based_on_party(year, chamber, 'R')
             else:
                 self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
 
-    def _add_fields_based_on_party(self, year, party_letter):
+    def _create_fields_with_default_values(self, year, chamber):
+        self.full[f'{year}_{chamber}_candidate_party'] = [None]
+        self.full[f'{year}_{chamber}_is_winner'] = [None]
+        self.full[f'{year}_{chamber}_is_incumbent'] = [None]
+        self.full[f'{year}_{chamber}_raised'] = [None]
+
+    def _add_fields_based_on_party(self, year, chamber, party_letter):
         party_letter = party_letter.upper()
 
-        self.full[f'{year}_candidate_party'] = [party_letter]
+        self.full[f'{year}_{chamber}_candidate_party'] = [party_letter]
 
         winner = self.full.loc[0, f'{year}_winner_{party_letter}']
-        self.full[f'{year}_is_winner'] = [winner]
+        self.full[f'{year}_{chamber}_is_winner'] = [winner]
 
         incumbent = self.full.loc[0, f'{year}_incumbency_{party_letter}']
-        self.full[f'{year}_is_incumbent'] = [incumbent]
+        self.full[f'{year}_{chamber}_is_incumbent'] = [incumbent]
 
         raised = self.full.loc[0, f'{year}_money_raised_{party_letter}']
-        self.full[f'{year}_raised'] = [raised]
-
-        else:
-            self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
+        self.full[f'{year}_{chamber}_raised'] = [raised]
 
 class MultiCandidateResearcher:
     def __init__(self):
