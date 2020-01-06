@@ -14,7 +14,6 @@ class CandidateResearcher:
         self.result = {}
         self.basic = DataFrame()
         self.full = DataFrame()
-        self.chambers_present = set()
         self._scrape_data()
         self._create_dataframes()
 
@@ -32,20 +31,13 @@ class CandidateResearcher:
     def _create_dataframes(self):
         self.basic = DataFrame([self.result])
         self.full = self.basic.copy()
-        self._identify_chambers_present()
 
         for year in (2019, 2017):
-            try:
-                for chamber in self.chambers_present:
+            for chamber in ('lower', 'upper', 'other'):
+                try:
                     self._add_fields_to_full_dataframe(year, chamber)
-            except KeyError:
-                pass
-
-    def _identify_chambers_present(self):
-        for col in self.full.columns:
-            for chamber in {'lower', 'upper', 'other'}:
-                if chamber in col.lower():
-                    self.chambers_present.add(chamber)
+                except KeyError:
+                    pass
 
     def _add_fields_to_full_dataframe(self, year, chamber):
         self._create_fields_with_default_values(year, chamber)
