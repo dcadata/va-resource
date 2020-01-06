@@ -4,7 +4,7 @@ from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScr
 def fillna_with_didnotrun(df):
     for col in df.columns:
         if col.startswith('2019') or col.startswith('2017'):
-            df[col].fillna(inplace=True, value='did not run')
+            df[col].fillna(inplace=True, value='N/A')
 
 
 class CandidateResearcher:
@@ -110,10 +110,10 @@ def main():
     mcr.full.to_csv('full_new.csv', index=False)
 
     sd_mapper = {}
-    for old_col, new_col in [line.split(':', 1) for line in open('sd_mapper.txt').read().strip().split('\n')]:
-        sd_mapper.update({old_col: new_col.format(year=YEAR, chamber=CHAMBER)})
+    for sd_col, curr_col in [line.split(':', 1) for line in open('sd_mapper.txt').read().strip().split('\n')]:
+        sd_mapper.update({curr_col.format(year=YEAR, chamber=CHAMBER): sd_col})
 
-    sd = mcr.full.loc[:, list(sd_mapper.values())].rename(columns=sd_mapper)
+    sd = mcr.full.loc[:, list(sd_mapper.keys())].rename(columns=sd_mapper)
     sd.to_csv('sd.csv', index=False)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
