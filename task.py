@@ -93,6 +93,10 @@ class MultiCandidateResearcher:
 
 
 def main():
+    """
+    Needs to be cleaned but works!
+    """
+
     YEAR = 2019
     CHAMBER = 'upper'
 
