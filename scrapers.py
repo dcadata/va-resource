@@ -185,6 +185,9 @@ class CandidateScraper(Requestor):
             self.summary = self.summary.strip().split('\n')[0].strip()
 
     def _get_chamber_from_summary(self):
+        """
+        Deliberately unused
+        """
         if self.summary and not self.chamber:
             if (
                     'house' in self.summary.lower() or 'assembly' in self.summary.lower()
@@ -195,6 +198,9 @@ class CandidateScraper(Requestor):
                 self.chamber = 'upper'
 
     def _get_party_from_summary(self):
+        """
+        Deliberately unused
+        """
         party_box = self.summary_para_box.find('strong')
         if party_box:
             self.party = party_box.text[0]
