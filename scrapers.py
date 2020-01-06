@@ -39,7 +39,7 @@ def get_driver():
     return driver
 
 
-class Requestor:
+class Requester:
     def __init__(self, url, params=None):
         r = get(url, params=params, timeout=20)
         sleep(2)
@@ -47,7 +47,7 @@ class Requestor:
         if not r.ok or not self.soup:
             raise AssertionError('Bad request and/or bad Soup')
 
-class Searcher(Requestor):
+class Searcher(Requester):
     def __init__(self, candidate_name):
         self.search_string = candidate_name.strip()
         self.homepage = HOMEPAGE
@@ -105,7 +105,7 @@ class Searcher(Requestor):
     def _get_legislator_page_link(self):
         self.legislator_page_link = self.candidate_page_link.replace('candidates', 'legislators')
 
-class LegislatorScraper(Requestor):
+class LegislatorScraper(Requester):
     def __init__(self, legislator_page_link):
         self.bio = {}
         try:
@@ -152,7 +152,7 @@ class LegislatorScraper(Requestor):
         })
         del self.bio['bio_length_of_service']
 
-class CandidateScraper(Requestor):
+class CandidateScraper(Requester):
     def __init__(self, candidate_page_link):
         self.candidate_page_link = candidate_page_link
         self.vpap_candidate_num = None
@@ -200,7 +200,7 @@ class CandidateScraper(Requestor):
         if party_box:
             self.party = party_box.text[0]
 
-class ElectionsScraper(Requestor):
+class ElectionsScraper(Requester):
     def __init__(self, elections_page_link, vpap_candidate_num, driver):
         self.vpap_candidate_num = vpap_candidate_num
         self.driver = driver
