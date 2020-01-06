@@ -35,7 +35,8 @@ class CandidateResearcher:
         for year in (2019, 2017):
             for chamber in ('lower', 'upper', 'other'):
                 try:
-                    self._add_fields_to_full_dataframe(year, chamber)
+                    if [col for col in self.full.columns if chamber in col]:
+                        self._add_fields_to_full_dataframe(year, chamber)
                 except KeyError:
                     pass
 
@@ -47,7 +48,7 @@ class CandidateResearcher:
         elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_R']:
             self._add_fields_based_on_party(year, chamber, 'R')
         else:
-            self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
+            self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}_{chamber}' in col])
 
     def _create_fields_with_default_values(self, year, chamber):
         self.full[f'{year}_{chamber}_candidate_party'] = [None]
@@ -60,13 +61,13 @@ class CandidateResearcher:
 
         self.full[f'{year}_{chamber}_candidate_party'] = [party_letter]
 
-        winner = self.full.loc[0, f'{year}_winner_{party_letter}']
+        winner = self.full.loc[0, f'{year}_{chamber}_winner_{party_letter}']
         self.full[f'{year}_{chamber}_is_winner'] = [winner]
 
-        incumbent = self.full.loc[0, f'{year}_incumbency_{party_letter}']
+        incumbent = self.full.loc[0, f'{year}_{chamber}_incumbency_{party_letter}']
         self.full[f'{year}_{chamber}_is_incumbent'] = [incumbent]
 
-        raised = self.full.loc[0, f'{year}_money_raised_{party_letter}']
+        raised = self.full.loc[0, f'{year}_{chamber}_money_raised_{party_letter}']
         self.full[f'{year}_{chamber}_raised'] = [raised]
 
 class MultiCandidateResearcher:
@@ -92,9 +93,12 @@ class MultiCandidateResearcher:
 
 
 def main():
+    YEAR = 2019
+    CHAMBER = 'upper'
+
     mcr = MultiCandidateResearcher()
 
-    candidate_list = set(i.strip() for i in open('2019_upper_candidate_list.txt').read().strip().split('\n'))
+    candidate_list = set(i.strip() for i in open(f'{YEAR}_{CHAMBER}_candidate_list.txt').read().strip().split('\n'))
 
     mcr.research(candidate_list)
 
@@ -102,8 +106,14 @@ def main():
     full = concat((full_existing, mcr.full), sort=False)
     fillna_with_didnotrun(full)
 
-    full.to_csv('full.csv', index=False)
     mcr.full.to_csv('full_new.csv', index=False)
+
+    sd_mapper = {}
+    for old_col, new_col in [line.split(':', 1) for line in open('sd_mapper.txt').read().strip().split('\n')]:
+        sd_mapper.update({old_col: new_col.format(year=YEAR, chamber=CHAMBER)})
+
+    sd = mcr.full.loc[:, list(sd_mapper.values())].rename(columns=sd_mapper)
+    sd.to_csv('sd.csv', index=False)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
     if len(full_dropped) != len(mcr.full):
