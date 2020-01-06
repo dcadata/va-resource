@@ -52,29 +52,26 @@ class CandidateResearcher:
         self.full[f'{year}_is_incumbent'] = [None]
         self.full[f'{year}_raised'] = [None]
 
-        if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_D']:
-            self.full[f'{year}_candidate_party'] = ['D']
+            if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_D']:
+                self._add_fields_based_on_party(year, 'D')
+            elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_R']:
+                self._add_fields_based_on_party(year, 'R')
+            else:
+                self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
 
-            winner = self.full.loc[0, f'{year}_winner_D']
-            self.full[f'{year}_is_winner'] = [winner]
+    def _add_fields_based_on_party(self, year, party_letter):
+        party_letter = party_letter.upper()
 
-            incumbent = self.full.loc[0, f'{year}_incumbency_D']
-            self.full[f'{year}_is_incumbent'] = [incumbent]
+        self.full[f'{year}_candidate_party'] = [party_letter]
 
-            raised = self.full.loc[0, f'{year}_money_raised_D']
-            self.full[f'{year}_raised'] = [raised]
+        winner = self.full.loc[0, f'{year}_winner_{party_letter}']
+        self.full[f'{year}_is_winner'] = [winner]
 
-        elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_R']:
-            self.full[f'{year}_candidate_party'] = ['R']
+        incumbent = self.full.loc[0, f'{year}_incumbency_{party_letter}']
+        self.full[f'{year}_is_incumbent'] = [incumbent]
 
-            winner = self.full.loc[0, f'{year}_winner_R']
-            self.full[f'{year}_is_winner'] = [winner]
-
-            incumbent = self.full.loc[0, f'{year}_incumbency_R']
-            self.full[f'{year}_is_incumbent'] = [incumbent]
-
-            raised = self.full.loc[0, f'{year}_money_raised_R']
-            self.full[f'{year}_raised'] = [raised]
+        raised = self.full.loc[0, f'{year}_money_raised_{party_letter}']
+        self.full[f'{year}_raised'] = [raised]
 
         else:
             self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
