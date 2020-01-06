@@ -101,20 +101,19 @@ def main():
     candidate_list = set(i.strip() for i in open(f'{YEAR}_{CHAMBER}_candidate_list.txt').read().strip().split('\n'))
 
     mcr.research(candidate_list)
+    mcr.full.to_csv('full_new.csv', index=False)
 
     full_existing = read_csv('full.csv')
-    full = concat((full_existing, mcr.full), sort=False)
-    fillna_with_didnotrun(full)
-    full.to_csv('full.csv', index=False)
-
-    mcr.full.to_csv('full_new.csv', index=False)
+    full_all = concat((full_existing, mcr.full), sort=False)
+    fillna_with_didnotrun(full_all)
+    full_all.to_csv('full.csv', index=False)
 
     sd_mapper = {}
     for sd_col, curr_col in [line.split(':', 1) for line in open('sd_mapper.txt').read().strip().split('\n')]:
         sd_mapper.update({curr_col.format(year=YEAR, chamber=CHAMBER): sd_col})
 
-    sd = mcr.full.loc[:, list(sd_mapper.keys())].rename(columns=sd_mapper)
-    sd.to_csv('sd.csv', index=False)
+    sd_all = full_all.loc[:, list(sd_mapper.keys())].rename(columns=sd_mapper)
+    sd_all.to_csv('sd.csv', index=False)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
     if len(full_dropped) != len(mcr.full):
