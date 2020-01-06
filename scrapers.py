@@ -232,16 +232,23 @@ class ElectionsScraper(Requestor):
         year = election_name.split(' ', 1)[0]
 
         if year in {'2017', '2019'} and 'general' in election_name.lower():
+            if 'house' in election_name or 'assembly' in election_name:
+                chamber = 'upper'
+            elif 'senate' in election_name:
+                chamber = 'lower'
+            else:
+                chamber = 'other'
+
             election_link = HOMEPAGE + election_data_link_box.get('href', None)
             self.result.update({
-                f'{year}_election_name': election_name,
-                f'{year}_election_link': election_link,
+                f'{year}_{chamber}_election_name': election_name,
+                f'{year}_{chamber}_election_link': election_link,
             })
 
             ies = IEScraper(self.driver, self.vpap_candidate_num, election_link)
             ies_result = {
-                f'{year}_ie_support': ies.support_amount,
-                f'{year}_ie_oppose': ies.oppose_amount,
+                f'{year}_{chamber}_ie_support': ies.support_amount,
+                f'{year}_{chamber}_ie_oppose': ies.oppose_amount,
             }
             self.result.update(ies_result)
 
@@ -251,7 +258,7 @@ class ElectionsScraper(Requestor):
                 if candidate_data["party"] in {'D', 'R'}:
                     candidate_data_rekeyed = {}
                     for key, value in candidate_data.items():
-                        candidate_data_rekeyed.update({f'{year}_{key}_{candidate_data["party"]}': value})
+                        candidate_data_rekeyed.update({f'{year}_{chamber}_{key}_{candidate_data["party"]}': value})
                         self.result.update(candidate_data_rekeyed)
 
 class ElectionsCandidateRowScraper:
