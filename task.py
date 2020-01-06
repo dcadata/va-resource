@@ -1,5 +1,12 @@
-from pandas import DataFrame, concat
+from pandas import DataFrame, concat, read_csv
 from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScraper, get_driver
+
+def fillna_with_didnotrun(df):
+    for col in df.columns:
+        if col.startswith(str(2019)) or col.startswith(str(2017)):
+            df[col].fillna(inplace=True, value='did not run')
+    # return df
+
 
 class CandidateResearcher:
     def __init__(self, driver, candidate_name):
@@ -65,9 +72,7 @@ class MultiCandidateResearcher:
                 self.basic = concat((self.basic, cr.basic), sort=False)
 
                 self.full = concat((self.full, cr.full), sort=False)
-                for col in self.full.columns:
-                    if col.startswith(str(2019)) or col.startswith(str(2017)):
-                        self.full[col].fillna(inplace=True, value='did not run')
+                fillna_with_didnotrun(self.full)
 
             except Exception as exc:
                 print(candidate, str(exc))
@@ -80,10 +85,14 @@ def main():
 
     mcr.research(candidate_list)
 
+    full_existing = read_csv('full.csv')
+    full = concat((full_existing, mcr.full), sort=False)
+    fillna_with_didnotrun(full)
+
+    full.to_csv('full.csv', index=False)
+    mcr.full.to_csv('full_new.csv', index=False)
+
     full_dropped = mcr.full.dropna(subset=['search_string'])
-
-    mcr.full.to_csv('full.csv', index=False)
-
     if len(full_dropped) != len(mcr.full):
         mcr.basic.to_csv('basic.csv', index=False)
         full_dropped.to_csv('full_dropped.csv', index=False)
