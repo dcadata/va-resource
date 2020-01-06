@@ -232,9 +232,9 @@ class ElectionsScraper(Requestor):
         year = election_name.split(' ', 1)[0]
 
         if year in {'2017', '2019'} and 'general' in election_name.lower():
-            if 'house' in election_name or 'assembly' in election_name:
+            if 'house of delegates' in election_name or 'assembly' in election_name:
                 chamber = 'lower'
-            elif 'senate' in election_name:
+            elif 'state senate' in election_name:
                 chamber = 'upper'
             else:
                 chamber = 'other'
