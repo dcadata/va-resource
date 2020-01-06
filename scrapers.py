@@ -148,14 +148,14 @@ class LegislatorScraper(Requestor):
                 self.bio.update({bio_attribute_name_adjusted: bio_attribute_value})
 
     def _adjust_bio_length_of_service(self):
-            bio_member_since, bio_years_of_service = self.bio['bio_length_of_service'].split(';', 1)
-            bio_member_since = bio_member_since.replace('Member since ', '')
-            bio_years_of_service = bio_years_of_service.replace(' years of service', '')
-            self.bio.update({
-                'bio_member_since': safe_int(bio_member_since),
-                'bio_years_of_service': safe_int(bio_years_of_service),
-            })
-            del self.bio['bio_length_of_service']
+        bio_member_since, bio_years_of_service = self.bio['bio_length_of_service'].split(';', 1)
+        bio_member_since = bio_member_since.replace('Member since ', '')
+        bio_years_of_service = bio_years_of_service.replace(' years of service', '')
+        self.bio.update({
+            'bio_member_since': safe_int(bio_member_since),
+            'bio_years_of_service': safe_int(bio_years_of_service),
+        })
+        del self.bio['bio_length_of_service']
 
 class CandidateScraper(Requestor):
     def __init__(self, candidate_page_link):
