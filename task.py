@@ -41,17 +41,22 @@ class CandidateResearcher:
 
     def _add_fields_to_full_dataframe(self, year):
         self.full[f'{year}_candidate_party'] = [None]
-        self.full[f'{year}_candidate_is_winner'] = [None]
+        self.full[f'{year}_is_winner'] = [None]
+        self.full[f'{year}_is_incumbent'] = [None]
 
         if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_D']:
             self.full[f'{year}_candidate_party'] = ['D']
             winner = self.full.loc[0, f'{year}_winner_D']
-            self.full[f'{year}_candidate_is_winner'] = [winner]
+            self.full[f'{year}_is_winner'] = [winner]
+            incumbent = self.full.loc[0, f'{year}_incumbency_D']
+            self.full[f'{year}_is_incumbent'] = [incumbent]
 
         elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_name_R']:
             self.full[f'{year}_candidate_party'] = ['R']
             winner = self.full.loc[0, f'{year}_winner_R']
-            self.full[f'{year}_candidate_is_winner'] = [winner]
+            self.full[f'{year}_is_winner'] = [winner]
+            incumbent = self.full.loc[0, f'{year}_incumbency_R']
+            self.full[f'{year}_is_incumbent'] = [incumbent]
 
         else:
             self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
