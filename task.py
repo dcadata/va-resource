@@ -105,6 +105,7 @@ def main():
     full_existing = read_csv('full.csv')
     full = concat((full_existing, mcr.full), sort=False)
     fillna_with_didnotrun(full)
+    full.to_csv('full.csv', index=False)
 
     mcr.full.to_csv('full_new.csv', index=False)
 
