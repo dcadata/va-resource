@@ -18,6 +18,10 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
 
 ## TO-DO
 
+### Parse out candidate's gender from `summary`
+
+* Per above, `bio_gender` is only available for legislators. For candidates, attempt to parse out gender from `summary` based on the pronouns used for the candidate. (This won't be perfect either because some candidates do not have summaries and other candidates have summaries but no pronouns are used, e.g. "Jane Doe has served in the House of Delegates since 2017.") It may also be possible to guess gender based on first name, but this is not always reliable either.
+
 ### Parse out district from election title
 
 * e.g. `2019 House of Delegates - District 10 - Regular General` => `HD-10`
