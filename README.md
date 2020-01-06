@@ -26,7 +26,10 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
 
 * e.g. `2019 House of Delegates - District 10 - Regular General` => `HD-10`
 
-### Ballotpedia scraper(s) (separate repo)
+### Ballotpedia.org scraper(s) (separate repo)
+
+* Searcher
+* Other
 
 ***
 
