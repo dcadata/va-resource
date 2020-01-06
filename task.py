@@ -36,7 +36,8 @@ class CandidateResearcher:
 
         for year in (2019, 2017):
             try:
-                self._add_fields_to_full_dataframe(year)
+                for chamber in self.chambers_present:
+                    self._add_fields_to_full_dataframe(year, chamber)
             except KeyError:
                 pass
 
@@ -46,16 +47,15 @@ class CandidateResearcher:
                 if chamber in col.lower():
                     self.chambers_present.add(chamber)
 
-    def _add_fields_to_full_dataframe(self, year):
-        for chamber in self.chambers_present:
-            self._create_fields_with_default_values(year, chamber)
+    def _add_fields_to_full_dataframe(self, year, chamber):
+        self._create_fields_with_default_values(year, chamber)
 
-            if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_D']:
-                self._add_fields_based_on_party(year, chamber, 'D')
-            elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_R']:
-                self._add_fields_based_on_party(year, chamber, 'R')
-            else:
-                self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
+        if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_D']:
+            self._add_fields_based_on_party(year, chamber, 'D')
+        elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_R']:
+            self._add_fields_based_on_party(year, chamber, 'R')
+        else:
+            self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}' in col])
 
     def _create_fields_with_default_values(self, year, chamber):
         self.full[f'{year}_{chamber}_candidate_party'] = [None]
