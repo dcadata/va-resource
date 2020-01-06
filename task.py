@@ -3,7 +3,7 @@ from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScr
 
 def fillna_with_didnotrun(df):
     for col in df.columns:
-        if col.startswith(str(2019)) or col.startswith(str(2017)):
+        if col.startswith('2019') or col.startswith('2017'):
             df[col].fillna(inplace=True, value='did not run')
 
 
