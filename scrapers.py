@@ -217,8 +217,8 @@ class ElectionsScraper(Requestor):
 
     def _get_election_data_boxes_and_tables(self):
         money_data_box = self.soup.find('div', class_='col-12 col-lg-9')
-        election_data_boxes = money_data_box.find_all('h4')[:4]
-        tables = money_data_box.find_all('table', class_='table')[:4]
+        election_data_boxes = money_data_box.find_all('h4')[:6]
+        tables = money_data_box.find_all('table', class_='table')[:6]
         self.election_data_boxes_and_tables = zip(election_data_boxes, tables)
 
     def _extract_data_from_election_data_box_and_table(self, election_data_box, table):
