@@ -25,11 +25,11 @@ def money_to_float(money_amount):
         money_amount_float = 0
     return money_amount_float
 
-def get_text_from_elem(box):
+def get_text_from_elem(box, result=None):
     try:
         text = box.text
     except AttributeError:
-        text = None
+        text = result
     return text
 
 def get_driver():
@@ -78,13 +78,7 @@ class Searcher(Requestor):
 
     def _get_candidate_record_count(self):
         self.candidates_record_count = self.candidates_panel_heading.find('span', class_='badge')
-
-        try:
-            self.candidates_record_count = self.candidates_record_count.text
-            self.candidates_record_count = int(self.candidates_record_count)
-        except (ValueError, AttributeError):
-            self.candidates_record_count = 2
-
+        self.candidates_record_count = safe_int(get_text_from_elem(self.candidates_record_count, '2'))
         if self.candidates_record_count > 1:
             raise AssertionError(
                 f'{self.candidates_record_count} candidates found for search string "{self.search_string}". '
@@ -140,12 +134,13 @@ class LegislatorScraper(Requestor):
             bio_attributes = panel.find_all('p')
             for attr in bio_attributes:
                 bio_attribute_name = get_text_from_elem(attr.find('span', class_='small_upper'))
-                bio_attribute_name_adjusted = (
-                    'bio_' + bio_attribute_name[:-1].strip().lower()
-                    .replace(' ', '_').replace('/', '').replace('__', '_')
-                )
-                bio_attribute_value = get_text_from_elem(attr.find('strong'))
-                self.bio.update({bio_attribute_name_adjusted: bio_attribute_value})
+                if bio_attribute_name:
+                    bio_attribute_name_adjusted = (
+                        'bio_' + bio_attribute_name[:-1].strip().lower()
+                        .replace(' ', '_').replace('/', '').replace('__', '_')
+                    )
+                    bio_attribute_value = get_text_from_elem(attr.find('strong'))
+                    self.bio.update({bio_attribute_name_adjusted: bio_attribute_value})
 
     def _adjust_bio_length_of_service(self):
         bio_member_since, bio_years_of_service = self.bio['bio_length_of_service'].split(';', 1)
