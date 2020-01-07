@@ -112,6 +112,15 @@ def condense(full_all, year, chamber):
     condensed_all = full_all.loc[:, list(mapper.keys())].rename(columns=mapper)
     condensed_all.to_csv(f'data/{year}_{chamber}_condensed.csv', index=False)
 
+def merge_full_existing_with_full(full, year, chamber):
+    try:
+        full_existing = read_csv(f'data/{year}_{chamber}_full.csv')
+        full_all = concat((full_existing, full), sort=False)
+        fillna_with_didnotrun(full_all)
+    except FileNotFoundError:
+        full_all = full
+    return full_all
+
 def main():
     """
     Needs to be cleaned but works!
@@ -126,13 +135,8 @@ def main():
     mcr.research(candidate_list)
     mcr.full.to_csv(f'{YEAR}_{CHAMBER}_full_new.csv', index=False)
 
-    try:
-        full_existing = read_csv(f'data/{YEAR}_{CHAMBER}_full.csv')
-        full_all = concat((full_existing, mcr.full), sort=False)
-        fillna_with_didnotrun(full_all)
-        full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
-    except FileNotFoundError:
-        full_all = mcr.full
+    full_all = merge_full_existing_with_full(mcr.full, YEAR, CHAMBER)
+    full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
 
     condense(full_all, YEAR, CHAMBER)
 
