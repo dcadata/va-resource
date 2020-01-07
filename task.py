@@ -1,5 +1,7 @@
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 from pandas import DataFrame, concat, read_csv
-from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScraper, get_driver
+from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScraper
 
 def fillna_with_didnotrun(df):
     for col in df.columns:
@@ -76,7 +78,12 @@ class MultiCandidateResearcher:
         self.errors = []
         self.basic = DataFrame()
         self.full = DataFrame()
-        self.driver = get_driver()
+        self._get_driver()
+
+    def _get_driver(self):
+        options = Options()
+        options.headless = True
+        self.driver = webdriver.Firefox(options=options, executable_path='G:/GitHub/geckodriver.exe')
 
     def research(self, candidate_list):
         for candidate in candidate_list:

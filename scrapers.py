@@ -1,8 +1,6 @@
 from requests import get
 from bs4 import BeautifulSoup
 from time import sleep
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
 HOMEPAGE = 'https://www.vpap.org'
@@ -31,12 +29,6 @@ def get_text_from_elem(box, result=None):
     except AttributeError:
         text = result
     return text
-
-def get_driver():
-    options = Options()
-    options.headless = True
-    driver = webdriver.Firefox(options=options, executable_path='G:/GitHub/geckodriver.exe')
-    return driver
 
 
 class Requester:
