@@ -112,10 +112,14 @@ def main():
     mcr.research(candidate_list)
     mcr.full.to_csv(f'{YEAR}_{CHAMBER}_full_new.csv', index=False)
 
-    full_existing = read_csv(f'data/{YEAR}_{CHAMBER}_full.csv')
-    full_all = concat((full_existing, mcr.full), sort=False)
-    fillna_with_didnotrun(full_all)
-    full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
+    try:
+        full_existing = read_csv(f'data/{YEAR}_{CHAMBER}_full.csv')
+        full_all = concat((full_existing, mcr.full), sort=False)
+        fillna_with_didnotrun(full_all)
+        full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
+    except FileNotFoundError:
+        full_all = mcr.full
+        pass
 
     mapper = {}
     for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
@@ -131,7 +135,7 @@ def main():
 
     if mcr.errors:
         errors = DataFrame(mcr.errors)
-        errors.to_csv(f'{YEAR}_{CHAMBER}_errors.csv')
+        errors.to_csv(f'{YEAR}_{CHAMBER}_errors.csv', index=False)
 
     mcr.driver.quit()
 
