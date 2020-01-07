@@ -107,54 +107,59 @@ class MultiCandidateResearcher:
                     'error_message': str(exc),
                 })
 
+class Exporter:
+    def __init__(self):
+        self.year = 2019
+        self.chamber = 'upper'
+        self.candidate_list = set(
+            i.strip() for i in open(f'{self.year}_{self.chamber}_candidate_list.txt').read().strip().split('\n')
+        )
 
-def condense(full_all, year, chamber):
-    mapper = {}
-    for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
-        mapper.update({curr_col.format(year=year, chamber=chamber): desired_col})
+    def _condense(self, full_all):
+        mapper = {}
+        for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
+            mapper.update({curr_col.format(year=self.year, chamber=self.chamber): desired_col})
 
-    condensed_all = full_all[list(mapper.keys())].rename(columns=mapper)
-    return condensed_all
+        condensed_all = full_all[list(mapper.keys())].rename(columns=mapper)
+        return condensed_all
 
-def merge_full_existing_with_full(full, year, chamber):
-    try:
-        full_existing = read_csv(f'data/{year}_{chamber}_full.csv')
-        full_all = concat((full_existing, full), sort=False)
-        fillna_with_didnotrun(full_all)
-    except FileNotFoundError:
-        full_all = full
-    return full_all
+    def _merge_full_existing_with_full(self, full):
+        try:
+            full_existing = read_csv(f'data/{self.year}_{self.chamber}_full.csv')
+            full_all = concat((full_existing, full), sort=False)
+            fillna_with_didnotrun(full_all)
+        except FileNotFoundError:
+            full_all = full
+        return full_all
 
-def main():
-    """
-    Needs to be cleaned but works!
-    """
-    YEAR = 2019
-    CHAMBER = 'upper'
+    def _export_main_dataframes(self, full, full_all, condensed_all):
+        full.to_csv(f'{self.year}_{self.chamber}_full_new.csv', index=False)
+        full_all.to_csv(f'data/{self.year}_{self.chamber}_full.csv', index=False)
+        condensed_all.to_csv(f'data/{self.year}_{self.chamber}_condensed.csv', index=False)
 
-    candidate_list = set(i.strip() for i in open(f'{YEAR}_{CHAMBER}_candidate_list.txt').read().strip().split('\n'))
+    def _export_contingency_dataframes(self, mcr):
+        full_dropped = mcr.full.dropna(subset=['search_string'])
+        if len(full_dropped) != len(mcr.full):
+            mcr.basic.to_csv(f'{self.year}_{self.chamber}_basic.csv', index=False)
+            full_dropped.to_csv(f'{self.year}_{self.chamber}_full_dropped.csv', index=False)
 
-    mcr = MultiCandidateResearcher()
-    mcr.research(candidate_list)
+        if mcr.errors:
+            errors = DataFrame(mcr.errors)
+            errors.to_csv(f'{self.year}_{self.chamber}_errors.csv', index=False)
 
-    full_all = merge_full_existing_with_full(mcr.full, YEAR, CHAMBER)
-    condensed_all = condense(full_all, YEAR, CHAMBER)
+    def main(self):
+        mcr = MultiCandidateResearcher()
+        mcr.research(self.candidate_list)
 
-    mcr.full.to_csv(f'{YEAR}_{CHAMBER}_full_new.csv', index=False)
-    full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
-    condensed_all.to_csv(f'data/{YEAR}_{CHAMBER}_condensed.csv', index=False)
+        full_all = self._merge_full_existing_with_full(mcr.full)
+        condensed_all = self._condense(full_all)
 
-    full_dropped = mcr.full.dropna(subset=['search_string'])
-    if len(full_dropped) != len(mcr.full):
-        mcr.basic.to_csv(f'{YEAR}_{CHAMBER}_basic.csv', index=False)
-        full_dropped.to_csv(f'{YEAR}_{CHAMBER}_full_dropped.csv', index=False)
+        self._export_main_dataframes(mcr.full, full_all, condensed_all)
+        self._export_contingency_dataframes(mcr)
 
-    if mcr.errors:
-        errors = DataFrame(mcr.errors)
-        errors.to_csv(f'{YEAR}_{CHAMBER}_errors.csv', index=False)
-
-    mcr.driver.quit()
+        mcr.driver.quit()
 
 
 if __name__ == '__main__':
-    main()
+    ex = Exporter()
+    ex.main()
