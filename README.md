@@ -2,7 +2,7 @@
 
 ## Data Collection (Scraping) Scripts
 
-These scripts enable you to scrape VPAP. They currently include only specific functionality that has been requested; however, they can be modified to add stuff. (e.g. exact election results - currently only W/L)
+These scripts enable you to scrape VPAP. They currently include only specific functionality that has been requested; however, they can be modified to add stuff.
 
 CSVs are published with data for specific requested candidates.
 
@@ -30,6 +30,17 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
 
 * Searcher
 * Other
+
+### Additional Fields
+
+* elections page:
+  * district name
+  * district index (competitiveness rating)
+  * date of election
+  * candidates' names; parties; incumbency; # of votes; voteshare; winner
+
+* candidate page:
+  * latest election: seat; date; votes; voteshare; names; winner; incumbency statuses; parties; campaign website; has_ie (if has ie link)
 
 ***
 
