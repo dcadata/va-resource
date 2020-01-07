@@ -36,20 +36,24 @@ class CandidateResearcher:
 
         for year in (2019, 2017):
             for chamber in ('lower', 'upper', 'other'):
-                try:
-                    if [col for col in self.full.columns if chamber in col]:
-                        self._add_fields_to_full_dataframe(year, chamber)
-                except KeyError:
-                    pass
+                if [col for col in self.full.columns if chamber in col]:
+                    self._add_fields_to_full_dataframe(year, chamber)
 
     def _add_fields_to_full_dataframe(self, year, chamber):
         self._create_fields_with_default_values(year, chamber)
 
-        if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_D']:
-            self._add_fields_based_on_party(year, chamber, 'D')
-        elif self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_R']:
-            self._add_fields_based_on_party(year, chamber, 'R')
-        else:
+        candidate_ran = False
+        if f'{year}_{chamber}_name_D' in self.full.columns:
+            if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_D']:
+                self._add_fields_based_on_party(year, chamber, 'D')
+                candidate_ran = True
+
+        if f'{year}_{chamber}_name_R' in self.full.columns:
+            if self.full.loc[0, 'candidate_yoda_name'] == self.full.loc[0, f'{year}_{chamber}_name_R']:
+                self._add_fields_based_on_party(year, chamber, 'R')
+                candidate_ran = True
+
+        if not candidate_ran:
             self.full = self.full.drop(columns=[col for col in self.full.columns if f'{year}_{chamber}' in col])
 
     def _create_fields_with_default_values(self, year, chamber):
@@ -109,7 +113,7 @@ def condense(full_all, year, chamber):
     for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
         mapper.update({curr_col.format(year=year, chamber=chamber): desired_col})
 
-    condensed_all = full_all[list(mapper.keys())]#.rename(columns=mapper)
+    condensed_all = full_all[list(mapper.keys())].rename(columns=mapper)
     return condensed_all
 
 def merge_full_existing_with_full(full, year, chamber):
@@ -125,8 +129,8 @@ def main():
     """
     Needs to be cleaned but works!
     """
-    YEAR = 2017
-    CHAMBER = 'lower'
+    YEAR = 2019
+    CHAMBER = 'upper'
 
     candidate_list = set(i.strip() for i in open(f'{YEAR}_{CHAMBER}_candidate_list.txt').read().strip().split('\n'))
 
