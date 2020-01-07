@@ -132,6 +132,7 @@ class Exporter:
             full_existing = read_csv(f'data/{self.year}_{self.chamber}_full.csv')
             full_all = concat((full_existing, full), sort=False)
             fillna_with_didnotrun(full_all)
+            full_all = full_all.drop_duplicates(keep='last')
         except FileNotFoundError:
             full_all = full
         return full_all
@@ -150,7 +151,7 @@ class Exporter:
         condensed_all.to_csv(f'data/{self.year}_{self.chamber}_condensed.csv', index=False)
 
     def _export_contingency_dataframes(self, mcr):
-        full_dropped = mcr.full.dropna(subset=['search_string'])
+        full_dropped = mcr.full.drop_duplicates(keep='last').dropna(subset=['search_string'])
         if len(full_dropped) != len(mcr.full):
             mcr.basic.to_csv(f'{self.year}_{self.chamber}_basic.csv', index=False)
             full_dropped.to_csv(f'{self.year}_{self.chamber}_full_dropped.csv', index=False)
