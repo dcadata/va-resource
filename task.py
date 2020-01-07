@@ -73,6 +73,7 @@ class CandidateResearcher:
 class MultiCandidateResearcher:
     def __init__(self):
         self.result = []
+        self.errors = []
         self.basic = DataFrame()
         self.full = DataFrame()
         self.driver = get_driver()
@@ -90,6 +91,10 @@ class MultiCandidateResearcher:
 
             except Exception as exc:
                 print(candidate, str(exc))
+                self.errors.append({
+                    'candidate': candidate,
+                    'error_message': str(exc),
+                })
 
 
 def main():
@@ -105,24 +110,28 @@ def main():
     candidate_list = set(i.strip() for i in open(f'{YEAR}_{CHAMBER}_candidate_list.txt').read().strip().split('\n'))
 
     mcr.research(candidate_list)
-    mcr.full.to_csv('full_new.csv', index=False)
+    mcr.full.to_csv(f'{YEAR}_{CHAMBER}_full_new.csv', index=False)
 
-    full_existing = read_csv('data/full.csv')
+    full_existing = read_csv(f'data/{YEAR}_{CHAMBER}_full.csv')
     full_all = concat((full_existing, mcr.full), sort=False)
     fillna_with_didnotrun(full_all)
-    full_all.to_csv('data/full.csv', index=False)
+    full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
 
     mapper = {}
     for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
         mapper.update({curr_col.format(year=YEAR, chamber=CHAMBER): desired_col})
 
     condensed_all = full_all.loc[:, list(mapper.keys())].rename(columns=mapper)
-    condensed_all.to_csv('data/condensed.csv', index=False)
+    condensed_all.to_csv(f'data/{YEAR}_{CHAMBER}_condensed.csv', index=False)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
     if len(full_dropped) != len(mcr.full):
-        mcr.basic.to_csv('basic.csv', index=False)
-        full_dropped.to_csv('full_dropped.csv', index=False)
+        mcr.basic.to_csv(f'{YEAR}_{CHAMBER}_basic.csv', index=False)
+        full_dropped.to_csv(f'{YEAR}_{CHAMBER}_full_dropped.csv', index=False)
+
+    if mcr.errors:
+        errors = DataFrame(mcr.errors)
+        errors.to_csv(f'{YEAR}_{CHAMBER}_errors.csv')
 
     mcr.driver.quit()
 
