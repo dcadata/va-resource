@@ -110,18 +110,22 @@ class MultiCandidateResearcher:
 class Exporter:
     def __init__(self):
         self.year = 2019
-        self.chamber = 'upper'
+        self.chamber = 'lower'
         self.candidate_list = set(
             i.strip() for i in open(f'{self.year}_{self.chamber}_candidate_list.txt').read().strip().split('\n')
         )
 
-    def _condense(self, full_all):
-        mapper = {}
-        for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
-            mapper.update({curr_col.format(year=self.year, chamber=self.chamber): desired_col})
+    def main(self):
+        mcr = MultiCandidateResearcher()
+        mcr.research(self.candidate_list)
 
-        condensed_all = full_all[list(mapper.keys())].rename(columns=mapper)
-        return condensed_all
+        full_all = self._merge_full_existing_with_full(mcr.full)
+        condensed_all = self._condense(full_all)
+
+        self._export_main_dataframes(mcr.full, full_all, condensed_all)
+        self._export_contingency_dataframes(mcr)
+
+        mcr.driver.quit()
 
     def _merge_full_existing_with_full(self, full):
         try:
@@ -131,6 +135,14 @@ class Exporter:
         except FileNotFoundError:
             full_all = full
         return full_all
+
+    def _condense(self, full_all):
+        mapper = {}
+        for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
+            mapper.update({curr_col.format(year=self.year, chamber=self.chamber): desired_col})
+
+        condensed_all = full_all[list(mapper.keys())].rename(columns=mapper)
+        return condensed_all
 
     def _export_main_dataframes(self, full, full_all, condensed_all):
         full.to_csv(f'{self.year}_{self.chamber}_full_new.csv', index=False)
@@ -146,18 +158,6 @@ class Exporter:
         if mcr.errors:
             errors = DataFrame(mcr.errors)
             errors.to_csv(f'{self.year}_{self.chamber}_errors.csv', index=False)
-
-    def main(self):
-        mcr = MultiCandidateResearcher()
-        mcr.research(self.candidate_list)
-
-        full_all = self._merge_full_existing_with_full(mcr.full)
-        condensed_all = self._condense(full_all)
-
-        self._export_main_dataframes(mcr.full, full_all, condensed_all)
-        self._export_contingency_dataframes(mcr)
-
-        mcr.driver.quit()
 
 def main():
     ex = Exporter()
