@@ -159,7 +159,10 @@ class Exporter:
 
         mcr.driver.quit()
 
-
-if __name__ == '__main__':
+def main():
     ex = Exporter()
     ex.main()
+
+
+if __name__ == '__main__':
+    main()
