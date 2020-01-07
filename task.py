@@ -104,13 +104,20 @@ class MultiCandidateResearcher:
                 })
 
 
+def condense(full_all, year, chamber):
+    mapper = {}
+    for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
+        mapper.update({curr_col.format(year=year, chamber=chamber): desired_col})
+
+    condensed_all = full_all.loc[:, list(mapper.keys())].rename(columns=mapper)
+    condensed_all.to_csv(f'data/{year}_{chamber}_condensed.csv', index=False)
+
 def main():
     """
     Needs to be cleaned but works!
     """
-
-    YEAR = 2019
-    CHAMBER = 'upper'
+    YEAR = 2017
+    CHAMBER = 'lower'
 
     mcr = MultiCandidateResearcher()
 
@@ -126,14 +133,8 @@ def main():
         full_all.to_csv(f'data/{YEAR}_{CHAMBER}_full.csv', index=False)
     except FileNotFoundError:
         full_all = mcr.full
-        pass
 
-    mapper = {}
-    for desired_col, curr_col in [line.split(':', 1) for line in open('mapper.txt').read().strip().split('\n')]:
-        mapper.update({curr_col.format(year=YEAR, chamber=CHAMBER): desired_col})
-
-    condensed_all = full_all.loc[:, list(mapper.keys())].rename(columns=mapper)
-    condensed_all.to_csv(f'data/{YEAR}_{CHAMBER}_condensed.csv', index=False)
+    condense(full_all, YEAR, CHAMBER)
 
     full_dropped = mcr.full.dropna(subset=['search_string'])
     if len(full_dropped) != len(mcr.full):
