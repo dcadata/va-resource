@@ -44,7 +44,7 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
   * campaign website
   * has_ie (if has ie link)
 
-***
+<!-- ***
 
 ## Completed
 
@@ -58,3 +58,4 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
 
 * **Completed successfully using Selenium!**
 
+ -->
