@@ -128,10 +128,9 @@ def main():
     YEAR = 2017
     CHAMBER = 'lower'
 
-    mcr = MultiCandidateResearcher()
-
     candidate_list = set(i.strip() for i in open(f'{YEAR}_{CHAMBER}_candidate_list.txt').read().strip().split('\n'))
 
+    mcr = MultiCandidateResearcher()
     mcr.research(candidate_list)
     mcr.full.to_csv(f'{YEAR}_{CHAMBER}_full_new.csv', index=False)
 
