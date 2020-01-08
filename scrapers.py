@@ -207,7 +207,7 @@ class CandidateScraper(Requester):
             self.party = party_box.text[0]
 
 class ElectionsScraper(Requester):
-    def __init__(self, elections_page_link, vpap_candidate_num, has_ie, driver):
+    def __init__(self, elections_page_link, vpap_candidate_num, has_ie=None, driver=None):
         self.vpap_candidate_num = vpap_candidate_num
         self.has_ie = has_ie
         self.driver = driver
@@ -247,7 +247,7 @@ class ElectionsScraper(Requester):
                 f'{year}_{chamber}_election_link': election_link,
             })
 
-            if self.has_ie:
+            if self.has_ie and self.driver:
                 ies = IEScraper(self.driver, self.vpap_candidate_num, election_link)
                 ies_result = {
                     f'{year}_{chamber}_ie_support': ies.support_amount,
