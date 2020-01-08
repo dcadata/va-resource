@@ -161,7 +161,7 @@ class CandidateScraper(Requester):
         self._get_summary_data()
         self._get_sidebar_menu()
         self._get_ie_link()
-        del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box, self.sidebar_menu_items
+        del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box, self.sidebar_menu
 
     def _get_name(self):
         name_box = self.summary_box.find('h3', {'style': 'margin-top:0;'})
@@ -175,18 +175,15 @@ class CandidateScraper(Requester):
             self.summary = self.summary.strip().split('\n')[0].strip()
 
     def _get_sidebar_menu(self):
-        sidebar_menu = self.soup.find('ul', class_='vsubmenu')
-        if sidebar_menu:
-            self.sidebar_menu_items = sidebar_menu.find_all('li')
-        else:
-            self.sidebar_menu_items = []
+        self.sidebar_menu = self.soup.find('ul', class_='vsubmenu')
+        # if self.sidebar_menu:
+        #     self.sidebar_menu_items = self.sidebar_menu.find_all('li')
+        # else:
+        #     self.sidebar_menu_items = []
 
     def _get_ie_link(self):
-        for item in self.sidebar_menu_items:
-            if item:
-                if item.text == 'Independent Expenditures':
-                    self.has_ie = True
-                    break
+        if self.sidebar_menu:
+            self.has_ie = bool(self.sidebar_menu.find('li', text='Independent Expenditures'))
 
     def _get_chamber_from_summary(self):
         """
