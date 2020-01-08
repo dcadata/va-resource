@@ -9,10 +9,13 @@ HOMEPAGE = 'https://www.vpap.org'
 def safe_int(text):
     if text:
         text = text.strip()
-        try:
-            result = int(text)
-        except TypeError:
-            result = text
+        if text == '-' or text == 'None':
+            result = 0
+        else:
+            try:
+                result = int(text)
+            except ValueError:
+                result = text
     else:
         result = 0
     return result
