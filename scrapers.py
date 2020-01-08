@@ -196,6 +196,16 @@ class CandidateScraper(Requester):
         if self.sidebar_menu:
             self.has_ie = bool(self.sidebar_menu.find('li', text='Independent Expenditures'))
 
+    def _get_current_election_data(self):
+        """
+        Deliberately unused
+        """
+        show_all_elections_link_elem = self.soup.find('a', text=lambda x: 'Show all elections for' in str(x))
+        current_election_elem = show_all_elections_link_elem.find_parent('div', class_='panel-body')
+        # comment in HTML for this elem: shows the next upcoming election, unless there was an election recently,
+        # in which case it displays the results
+        self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem).result)
+
     def _get_chamber_from_summary(self):
         """
         Deliberately unused
@@ -216,6 +226,40 @@ class CandidateScraper(Requester):
         party_box = self.summary_para_box.find('strong')
         if party_box:
             self.party = party_box.text[0]
+
+class CandidateCurrentElectionScraper:
+    def __init__(self, current_election_elem):
+        self.current_election_elem = current_election_elem
+        self.candidate_rows = []
+        self.result = {}
+        self._scrape()
+        del self.candidate_rows
+
+    def _scrape(self):
+        self._scrape_header()
+        self._scrape_table()
+
+    def _scrape_header(self):
+        election_office_header_elem = self.current_election_elem.find('h4')
+        if election_office_header_elem:
+            election_office_rellink_elem = election_office_header_elem.find('a')
+            if get_text_from_elem(election_office_rellink_elem):
+                self.result.update({
+                    'election_office': election_office_rellink_elem.text.strip(),
+                    'election_rellink': get('href', None),
+                })
+            election_date_elem = election_office_header_elem.find('span', class_='small')
+            self.result.update({'election_date': get_text_from_elem(election_date_elem)})
+
+    def _scrape_table(self):
+        table = self.current_election_elem.find('table', class_='table')
+        if table:
+            self.candidate_rows = table.find('tbody').find_all('tr')
+            for candidate_row in self.candidate_rows:
+                row_scraper = CurrentElectionCandidateRowScraper(candidate_row)
+                last_name = row_scraper.name.split(',', 1)[0]
+                for key, value in CurrentElectionCandidateRowScraper(candidate_row).__dict__:
+                    self.result.update({f'{last_name.lower()}_{key}': value})
 
 class ElectionsScraper(Requester):
     def __init__(self, elections_page_link, vpap_candidate_num, has_ie=None, driver=None):
