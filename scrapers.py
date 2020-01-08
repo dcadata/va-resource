@@ -24,9 +24,9 @@ def money_to_float(money_text):
         money_amount = 0
     return money_amount
 
-def get_text_from_elem(box, result=None):
+def get_text_from_elem(elem, result=None):
     try:
-        text = box.text
+        text = elem.text
     except AttributeError:
         text = result
     return text
