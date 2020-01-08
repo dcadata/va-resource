@@ -239,10 +239,11 @@ class CandidateCurrentElectionScraper:
             self.candidate_rows = table.find('tbody').find_all('tr')[:2]
             for candidate_row in self.candidate_rows:
                 row_scraper = CurrentElectionCandidateRowScraper(candidate_row)
-                last_name = row_scraper.name.split(',', 1)[0]
-                candidate = 'candidate' if last_name.lower() in self.candidate_name.lower() else 'opponent'
-                for key, value in CurrentElectionCandidateRowScraper(candidate_row).__dict__.items():
-                    self.result.update({f'{candidate}_{key}': value})
+                if row_scraper.name:
+                    last_name = row_scraper.name.split(',', 1)[0]
+                    candidate = 'candidate' if last_name.lower() in self.candidate_name.lower() else 'opponent'
+                    for key, value in CurrentElectionCandidateRowScraper(candidate_row).__dict__.items():
+                        self.result.update({f'{candidate}_{key}': value})
 
 class ElectionsScraper(Requester):
     def __init__(self, elections_page_link, **kwargs):
@@ -402,20 +403,24 @@ class CandidateRowScraper:
 
     def _get_candidate_data(self):
         if self.candidate_cell:
-            self.winner = bool(self.candidate_cell.find('span', class_='badge'))
-
             if self.candidate_cell.text:
-                candidate_items = [i.strip() for i in self.candidate_cell.text.strip().split('\n')]
-                if len(candidate_items) > 1:
-                    self.name, self.party = candidate_items[:2]
-                    if not ('Withdrawn Candidates' in self.name or 'Did not seek' in self.name):
+                lower_ctext = self.candidate_cell.text.lower()
+                if not (
+                    'withdrawn candidates' in lower_ctext or 'did not seek' in lower_ctext
+                    or 'sought other office' in lower_ctext or 'failed to' in lower_ctext
+                ):
+                    self.winner = bool(self.candidate_cell.find('span', class_='badge'))
+                    candidate_items = [i.strip() for i in self.candidate_cell.text.strip().split('\n')]
+                    if len(candidate_items) > 1:
+                        self.name, self.party = candidate_items[:2]
+
                         if self.name.endswith('*'):
                             self.incumbency = True
                             self.name = self.name.replace('*', '').strip()
                         else:
                             self.incumbency = False
 
-                        self.party = self.party[1]
+                        self.party = self.party.replace('(', '').replace(')', '')
 
     @abstractmethod
     def _get_remaining_cells(self):
@@ -472,8 +477,9 @@ class CurrentElectionCandidateRowScraper(CandidateRowScraper):
     def _get_spent(self):
         if self.spent_elem:
             spent_rellink_elem = self.spent_elem.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
-            self.spent_text = spent_rellink_elem.text
-            self.spent = money_to_float(self.spent_text)
+            self.spent_text = get_text_from_elem(spent_rellink_elem)
+            if self.spent_text:
+                self.spent = money_to_float(self.spent_text)
 
     def _get_votes(self):
         if self.votes_elem:
