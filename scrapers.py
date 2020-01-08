@@ -172,6 +172,7 @@ class CandidateScraper(Requester):
         self._get_summary_data()
         self._get_sidebar_menu()
         self._get_ie_link()
+        self._get_current_election_data()
         del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box, self.sidebar_menu
 
     def _get_name(self):
@@ -197,35 +198,11 @@ class CandidateScraper(Requester):
             self.has_ie = bool(self.sidebar_menu.find('li', text='Independent Expenditures'))
 
     def _get_current_election_data(self):
-        """
-        Deliberately unused
-        """
         show_all_elections_link_elem = self.soup.find('a', text=lambda x: 'Show all elections for' in str(x))
         current_election_elem = show_all_elections_link_elem.find_parent('div', class_='panel-body')
         # comment in HTML for this elem: shows the next upcoming election, unless there was an election recently,
         # in which case it displays the results
         self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem).result)
-
-    def _get_chamber_from_summary(self):
-        """
-        Deliberately unused
-        """
-        if self.summary and not self.chamber:
-            if (
-                    'house' in self.summary.lower() or 'assembly' in self.summary.lower()
-                    or 'delegate' in self.summary.lower()
-            ):
-                self.chamber = 'lower'
-            elif 'senate' in self.summary.lower():
-                self.chamber = 'upper'
-
-    def _get_party_from_summary(self):
-        """
-        Deliberately unused
-        """
-        party_box = self.summary_para_box.find('strong')
-        if party_box:
-            self.party = party_box.text[0]
 
 class CandidateCurrentElectionScraper:
     def __init__(self, current_election_elem):
