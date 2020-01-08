@@ -202,11 +202,12 @@ class CandidateScraper(Requester):
         current_election_elem = show_all_elections_link_elem.find_parent('div', class_='panel-body')
         # comment in HTML for this elem: shows the next upcoming election, unless there was an election recently,
         # in which case it displays the results
-        self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem).result)
+        self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem, self.name).result)
 
 class CandidateCurrentElectionScraper:
-    def __init__(self, current_election_elem):
+    def __init__(self, current_election_elem, candidate_name):
         self.current_election_elem = current_election_elem
+        self.candidate_name = candidate_name
         self.candidate_rows = []
         self.result = {}
         self._scrape()
@@ -235,8 +236,9 @@ class CandidateCurrentElectionScraper:
             for candidate_row in self.candidate_rows:
                 row_scraper = CurrentElectionCandidateRowScraper(candidate_row)
                 last_name = row_scraper.name.split(',', 1)[0]
-                for key, value in CurrentElectionCandidateRowScraper(candidate_row).__dict__:
-                    self.result.update({f'{last_name.lower()}_{key}': value})
+                candidate = 'candidate' if last_name.lower() in self.candidate_name.lower() else 'opponent'
+                for key, value in CurrentElectionCandidateRowScraper(candidate_row).__dict__.items():
+                    self.result.update({f'{candidate}_{key}': value})
 
 class ElectionsScraper(Requester):
     def __init__(self, elections_page_link, vpap_candidate_num, **kwargs):
