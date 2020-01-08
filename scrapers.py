@@ -14,15 +14,15 @@ def safe_int(text):
         floated = text
     return floated
 
-def money_to_float(money_amount):
-    if money_amount:
+def money_to_float(money_text):
+    if money_text:
         try:
-            money_amount_float = float(money_amount.replace('$', '').replace(',', ''))
+            money_amount = float(money_text.replace('$', '').replace(',', ''))
         except TypeError:
-            money_amount_float = 0
+            money_amount = 0
     else:
-        money_amount_float = 0
-    return money_amount_float
+        money_amount = 0
+    return money_amount
 
 def get_text_from_elem(box, result=None):
     try:
