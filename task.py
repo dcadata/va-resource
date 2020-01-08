@@ -22,7 +22,7 @@ class CandidateResearcher:
     def _scrape_data(self):
         search = Searcher(self.candidate_name)
         cand = CandidateScraper(search.candidate_page_link)
-        elec = ElectionsScraper(search.elections_page_link, cand.vpap_candidate_num, self.driver)
+        elec = ElectionsScraper(search.elections_page_link, cand.vpap_candidate_num, cand.has_ie, self.driver)
         legis = LegislatorScraper(search.legislator_page_link)
 
         self.result = search.result.copy()
