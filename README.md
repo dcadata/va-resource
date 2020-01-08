@@ -42,7 +42,6 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
 * candidate page:
   * latest election: seat; date; votes; voteshare; names; winner; incumbency statuses; parties
   * campaign website
-  * has_ie (if has ie link)
 
 <!-- ***
 
