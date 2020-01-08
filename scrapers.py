@@ -424,3 +424,43 @@ class MoneyRaisedCandidateRowScraper(CandidateRowScraper):
                 # .get('href', None)
                 self.money_raised_text = money_link_box.text
                 self.money_raised = money_to_float(self.money_raised_text)
+
+class CurrentElectionCandidateRowScraper(CandidateRowScraper):
+    def __init__(self, candidate_row):
+        self.spent_elem = None
+        self.votes_elem = None
+        self.voteshare_elem = None
+        self.spent_text = None
+        self.votes_text = None
+        self.voteshare_text = None
+        self.spent = None
+        self.votes = None
+        self.voteshare = None
+        super().__init__(candidate_row)
+        del self.spent_elem, self.votes_elem, self.voteshare_elem
+
+    def _get_remaining_cells(self):
+        if self.remaining_cells:
+            augmented_remaining_cells = (self.remaining_cells + [None, None, None])[:3]
+            self.spent_elem, self.votes_elem, self.voteshare_elem = augmented_remaining_cells
+
+    def _get_remaining_cells_data(self):
+        self._get_spent()
+        self._get_votes()
+        self._get_voteshare()
+
+    def _get_spent(self):
+        if self.spent_elem:
+            spent_rellink_elem = self.spent_elem.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
+            self.spent_text = spent_rellink_elem.text
+            self.spent = money_to_float(self.spent_text)
+
+    def _get_votes(self):
+        if self.votes_elem:
+            self.votes_text = get_text_from_elem(self.votes_elem, '0')
+            self.votes = safe_int(self.votes_text.replace(',', ''))
+
+    def _get_voteshare(self):
+        if self.voteshare_elem:
+            self.voteshare_text = get_text_from_elem(self.voteshare_elem, '0')
+            self.voteshare = pct_to_float(self.voteshare_text)
