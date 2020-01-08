@@ -269,50 +269,6 @@ class ElectionsScraper(Requester):
                         candidate_data_rekeyed.update({f'{year}_{chamber}_{key}_{candidate_data["party"]}': value})
                         self.result.update(candidate_data_rekeyed)
 
-class ElectionsCandidateRowScraper:
-    def __init__(self, candidate_row):
-        self.candidate_row = candidate_row
-        self.name = None
-        self.winner = None
-        self.party = None
-        self.incumbency = None
-        self.money_raised_text = None
-        self.money_raised = None
-        self._scrape()
-
-    def _scrape(self):
-        self._get_elements()
-        if self.candidate_data_cell and self.money_cell:
-            self._get_result()
-            self._get_incumbency_and_party()
-            self._get_money_raised()
-            del self.money_link_box
-
-        del self.candidate_row, self.candidate_data_cell, self.money_cell
-
-    def _get_elements(self):
-        candidate_row_split = self.candidate_row.find_all('td')
-        if len(candidate_row_split) == 2:
-            self.candidate_data_cell, self.money_cell = self.candidate_row.find_all('td')
-            self.money_link_box = self.money_cell.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
-        else:
-            self.candidate_data_cell, self.money_cell = None, None
-
-    def _get_result(self):
-        self.name = self.candidate_data_cell.find('a').text
-        self.winner = bool(self.candidate_data_cell.find('span', class_='badge'))
-
-    def _get_incumbency_and_party(self):
-        incumbency_and_party = self.candidate_data_cell.text.replace(self.name, '').replace('Winner', '').strip()
-        self.incumbency, self.party = incumbency_and_party.split('(', 1)
-        self.incumbency = self.incumbency.strip() == '*'
-        self.party = self.party.strip().replace(')', '')
-
-    def _get_money_raised(self):
-        if self.money_link_box:
-            self.money_raised_text = self.money_link_box.text
-            self.money_raised = money_to_float(self.money_raised_text)
-
 class IEScraper:
     def __init__(self, driver, vpap_candidate_num, election_link):
         self.driver = driver
@@ -389,3 +345,47 @@ class IEScraper:
             self.oppose_amount_text = 0
         if not self.oppose_amount:
             self.oppose_amount = 0
+
+class ElectionsCandidateRowScraper:
+    def __init__(self, candidate_row):
+        self.candidate_row = candidate_row
+        self.name = None
+        self.winner = None
+        self.party = None
+        self.incumbency = None
+        self.money_raised_text = None
+        self.money_raised = None
+        self._scrape()
+
+    def _scrape(self):
+        self._get_elements()
+        if self.candidate_data_cell and self.money_cell:
+            self._get_result()
+            self._get_incumbency_and_party()
+            self._get_money_raised()
+            del self.money_link_box
+
+        del self.candidate_row, self.candidate_data_cell, self.money_cell
+
+    def _get_elements(self):
+        candidate_row_split = self.candidate_row.find_all('td')
+        if len(candidate_row_split) == 2:
+            self.candidate_data_cell, self.money_cell = self.candidate_row.find_all('td')
+            self.money_link_box = self.money_cell.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
+        else:
+            self.candidate_data_cell, self.money_cell = None, None
+
+    def _get_result(self):
+        self.name = self.candidate_data_cell.find('a').text
+        self.winner = bool(self.candidate_data_cell.find('span', class_='badge'))
+
+    def _get_incumbency_and_party(self):
+        incumbency_and_party = self.candidate_data_cell.text.replace(self.name, '').replace('Winner', '').strip()
+        self.incumbency, self.party = incumbency_and_party.split('(', 1)
+        self.incumbency = self.incumbency.strip() == '*'
+        self.party = self.party.strip().replace(')', '')
+
+    def _get_money_raised(self):
+        if self.money_link_box:
+            self.money_raised_text = self.money_link_box.text
+            self.money_raised = money_to_float(self.money_raised_text)
