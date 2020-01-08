@@ -7,12 +7,15 @@ from selenium.common.exceptions import NoSuchElementException
 HOMEPAGE = 'https://www.vpap.org'
 
 def safe_int(text):
-    text = text.strip()
-    try:
-        inted = int(text)
-    except TypeError:
-        inted = text
-    return inted
+    if text:
+        text = text.strip()
+        try:
+            result = int(text)
+        except TypeError:
+            result = text
+    else:
+        result = 0
+    return result
 
 def money_to_float(money_text):
     if money_text:
