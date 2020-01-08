@@ -93,8 +93,7 @@ class Searcher(Requester):
             'a', class_='list-group-item', attrs={'href': lambda x: '/candidates/' in str(x)}
         )
         if candidate_page_box:
-            candidate_page_rellink = candidate_page_box.get('href', None)
-            self.candidate_page_link = self.homepage + candidate_page_rellink
+            self.candidate_page_link = self.homepage + candidate_page_box.get('href', '')
             self.candidate_page_name = candidate_page_box.find('span', class_='linklike').text
         else:
             raise AssertionError(f'No candidate pages found for search query "{self.search_string}".')
@@ -134,8 +133,7 @@ class LegislatorScraper(Requester):
             'div', class_='panel-body')
 
         if panel:
-            bio_attributes = panel.find_all('p')
-            for attr in bio_attributes:
+            for attr in panel.find_all('p'):
                 bio_attribute_name = get_text_from_elem(attr.find('span', class_='small_upper'))
                 if bio_attribute_name:
                     bio_attribute_name_adjusted = ('bio_' + bio_attribute_name[:-1].strip().lower()
