@@ -150,6 +150,7 @@ class CandidateScraper(Requester):
         self.vpap_candidate_num = None
         self.name = None
         self.summary = None
+        self.has_ie = None
         super().__init__(url=self.candidate_page_link)
         self._scrape()
 
@@ -158,6 +159,8 @@ class CandidateScraper(Requester):
         self.summary_box = self.soup.find('div', {'style': 'float:left;'})
         self._get_name()
         self._get_summary_data()
+        self._get_sidebar_menu()
+        self._get_ie_link()
         del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box
 
     def _get_name(self):
@@ -170,6 +173,20 @@ class CandidateScraper(Requester):
         if self.summary_para_box:
             self.summary = self.summary_para_box.text
             self.summary = self.summary.strip().split('\n')[0].strip()
+
+    def _get_sidebar_menu(self):
+        sidebar_menu = self.soup.find('ul', class_='vsubmenu')
+        if sidebar_menu:
+            self.sidebar_menu_items = sidebar_menu.find_all('li')
+        else:
+            self.sidebar_menu_items = []
+
+    def _get_ie_link(self):
+        for item in self.sidebar_menu_items:
+            if item:
+                if item.text == 'Independent Expenditures':
+                    self.has_ie = True
+                    break
 
     def _get_chamber_from_summary(self):
         """
