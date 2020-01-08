@@ -138,10 +138,8 @@ class LegislatorScraper(Requester):
             for attr in bio_attributes:
                 bio_attribute_name = get_text_from_elem(attr.find('span', class_='small_upper'))
                 if bio_attribute_name:
-                    bio_attribute_name_adjusted = (
-                        'bio_' + bio_attribute_name[:-1].strip().lower()
-                        .replace(' ', '_').replace('/', '').replace('__', '_')
-                    )
+                    bio_attribute_name_adjusted = ('bio_' + bio_attribute_name[:-1].strip().lower()
+                                                   .replace(' ', '_').replace('/', '').replace('__', '_'))
                     bio_attribute_value = get_text_from_elem(attr.find('strong'))
                     self.bio.update({bio_attribute_name_adjusted: bio_attribute_value})
 
