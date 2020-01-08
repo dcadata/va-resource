@@ -383,12 +383,19 @@ class CandidateRowScraper:
 
     def _get_candidate_data(self):
         if self.candidate_cell:
-            self.name = self.candidate_cell.find('a').text
             self.winner = bool(self.candidate_cell.find('span', class_='badge'))
-            incumbency_and_party = self.candidate_cell.text.replace(self.name, '').replace('Winner', '').strip()
-            self.incumbency, self.party = incumbency_and_party.split('(', 1)
-            self.incumbency = self.incumbency.strip() == '*'
-            self.party = self.party.strip().replace(')', '')
+
+            if self.candidate_cell.text:
+                candidate_items = [i.strip() for i in self.candidate_cell.text.strip().split('\n')]
+                self.name, party, winner = (candidate_items + [None, None, None])[:3]
+
+                if self.name.endswith('*'):
+                    self.incumbency = True
+                    self.name = self.name.replace('*', '').strip()
+                else:
+                    self.incumbency = False
+
+                self.party = party.replace('(', '').replace(')', '').strip()
 
     @abstractmethod
     def _get_remaining_cells(self):
