@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from requests import get
 from bs4 import BeautifulSoup
 from time import sleep
@@ -262,7 +263,7 @@ class ElectionsScraper(Requester):
 
             candidate_rows = table.find('tbody').find_all('tr')
             for candidate_row in candidate_rows:
-                candidate_data = ElectionsCandidateRowScraper(candidate_row).__dict__
+                candidate_data = MoneyCandidateRowScraper(candidate_row).__dict__
                 if candidate_data["party"] in {'D', 'R'}:
                     candidate_data_rekeyed = {}
                     for key, value in candidate_data.items():
@@ -346,46 +347,64 @@ class IEScraper:
         if not self.oppose_amount:
             self.oppose_amount = 0
 
-class ElectionsCandidateRowScraper:
+class CandidateRowScraper:
     def __init__(self, candidate_row):
-        self.candidate_row = candidate_row
+        self.row = candidate_row
         self.name = None
         self.winner = None
         self.party = None
         self.incumbency = None
-        self.money_raised_text = None
-        self.money_raised = None
         self._scrape()
 
     def _scrape(self):
-        self._get_elements()
-        if self.candidate_data_cell and self.money_cell:
-            self._get_result()
-            self._get_incumbency_and_party()
-            self._get_money_raised()
-            del self.money_link_box
+        self._get_candidate_data_cell()
+        self._get_candidate_data()
+        self._get_remaining_cells()
+        self._get_remaining_cells_data()
+        del self.row, self.candidate_cell, self.remaining_cells
 
-        del self.candidate_row, self.candidate_data_cell, self.money_cell
-
-    def _get_elements(self):
-        candidate_row_split = self.candidate_row.find_all('td')
-        if len(candidate_row_split) == 2:
-            self.candidate_data_cell, self.money_cell = self.candidate_row.find_all('td')
-            self.money_link_box = self.money_cell.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
+    def _get_candidate_data_cell(self):
+        cells = self.row.find_all('td')
+        if cells:
+            self.candidate_cell = cells[0]
+            self.remaining_cells = cells[1:]
         else:
-            self.candidate_data_cell, self.money_cell = None, None
+            self.candidate_cell = None
+            self.remaining_cells = []
 
-    def _get_result(self):
-        self.name = self.candidate_data_cell.find('a').text
-        self.winner = bool(self.candidate_data_cell.find('span', class_='badge'))
+    def _get_candidate_data(self):
+        if self.candidate_cell:
+            self.name = self.candidate_cell.find('a').text
+            self.winner = bool(self.candidate_cell.find('span', class_='badge'))
+            incumbency_and_party = self.candidate_cell.text.replace(self.name, '').replace('Winner', '').strip()
+            self.incumbency, self.party = incumbency_and_party.split('(', 1)
+            self.incumbency = self.incumbency.strip() == '*'
+            self.party = self.party.strip().replace(')', '')
 
-    def _get_incumbency_and_party(self):
-        incumbency_and_party = self.candidate_data_cell.text.replace(self.name, '').replace('Winner', '').strip()
-        self.incumbency, self.party = incumbency_and_party.split('(', 1)
-        self.incumbency = self.incumbency.strip() == '*'
-        self.party = self.party.strip().replace(')', '')
+    @abstractmethod
+    def _get_remaining_cells(self):
+        pass
 
-    def _get_money_raised(self):
-        if self.money_link_box:
-            self.money_raised_text = self.money_link_box.text
-            self.money_raised = money_to_float(self.money_raised_text)
+    @abstractmethod
+    def _get_remaining_cells_data(self):
+        pass
+
+class MoneyCandidateRowScraper(CandidateRowScraper):
+    def __init__(self, candidate_row):
+        self.money_raised_text = None
+        self.money_raised = None
+        super().__init__(candidate_row)
+        del self.money_cell
+
+    def _get_remaining_cells(self):
+        if self.remaining_cells:
+            self.money_cell = self.remaining_cells[0]
+        else:
+            self.money_cell = None
+
+    def _get_remaining_cells_data(self):
+        if self.money_cell:
+            money_link_box = self.money_cell.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
+            if money_link_box:
+                self.money_raised_text = money_link_box.text
+                self.money_raised = money_to_float(self.money_raised_text)
