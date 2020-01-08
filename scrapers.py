@@ -241,8 +241,7 @@ class CandidateCurrentElectionScraper:
                     self.result.update({f'{candidate}_{key}': value})
 
 class ElectionsScraper(Requester):
-    def __init__(self, elections_page_link, vpap_candidate_num, **kwargs):
-        self.vpap_candidate_num = vpap_candidate_num
+    def __init__(self, elections_page_link, **kwargs):
         self.kwargs = kwargs
         self.result = {}
         super().__init__(url=elections_page_link)
@@ -281,7 +280,7 @@ class ElectionsScraper(Requester):
             })
 
             if self.kwargs.get('has_ie', None) and self.kwargs.get('driver', None):
-                ies = IEScraper(self.kwargs['driver'], self.vpap_candidate_num, election_link)
+                ies = IEScraper(self.kwargs['driver'], self.kwargs.get('vpap_candidate_num', None), election_link)
                 ies_result = {
                     f'{year}_{chamber}_ie_support': ies.support_amount,
                     f'{year}_{chamber}_ie_oppose': ies.oppose_amount,

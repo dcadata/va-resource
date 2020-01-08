@@ -23,7 +23,8 @@ class CandidateResearcher:
         search = Searcher(self.candidate_name)
         cand = CandidateScraper(search.candidate_page_link)
         elec = ElectionsScraper(
-            search.elections_page_link, cand.vpap_candidate_num, has_ie=cand.has_ie, driver=self.driver
+            search.elections_page_link,
+            vpap_candidate_num=cand.vpap_candidate_num, has_ie=cand.has_ie, driver=self.driver
         )
         legis = LegislatorScraper(search.legislator_page_link)
 
