@@ -350,6 +350,8 @@ class IEScraper:
 class CandidateRowScraper:
     def __init__(self, candidate_row):
         self.row = candidate_row
+        self.candidate_cell = None
+        self.remaining_cells = []
         self.name = None
         self.winner = None
         self.party = None
@@ -368,9 +370,6 @@ class CandidateRowScraper:
         if cells:
             self.candidate_cell = cells[0]
             self.remaining_cells = cells[1:]
-        else:
-            self.candidate_cell = None
-            self.remaining_cells = []
 
     def _get_candidate_data(self):
         if self.candidate_cell:
@@ -391,6 +390,7 @@ class CandidateRowScraper:
 
 class MoneyCandidateRowScraper(CandidateRowScraper):
     def __init__(self, candidate_row):
+        self.money_cell = None
         self.money_raised_text = None
         self.money_raised = None
         super().__init__(candidate_row)
@@ -399,8 +399,6 @@ class MoneyCandidateRowScraper(CandidateRowScraper):
     def _get_remaining_cells(self):
         if self.remaining_cells:
             self.money_cell = self.remaining_cells[0]
-        else:
-            self.money_cell = None
 
     def _get_remaining_cells_data(self):
         if self.money_cell:
