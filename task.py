@@ -10,9 +10,9 @@ def fillna_with_didnotrun(df):
 
 
 class CandidateResearcher:
-    def __init__(self, driver, candidate_name):
-        self.driver = driver
+    def __init__(self, candidate_name, driver=None):
         self.candidate_name = candidate_name
+        self.driver = driver
         self.result = {}
         self.basic = DataFrame()
         self.full = DataFrame()
@@ -95,7 +95,7 @@ class MultiCandidateResearcher:
     def research(self, candidate_list):
         for candidate in candidate_list:
             try:
-                cr = CandidateResearcher(self.driver, candidate)
+                cr = CandidateResearcher(candidate, self.driver)
 
                 self.result.append(cr.result)
                 self.basic = concat((self.basic, cr.basic), sort=False)
