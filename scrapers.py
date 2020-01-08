@@ -285,16 +285,10 @@ class ElectionsScraper(Requester):
 
             if self.kwargs.get('has_ie', None) and self.kwargs.get('driver', None):
                 ies = IEScraper(self.kwargs['driver'], self.kwargs.get('vpap_candidate_num', None), election_link)
-                ies_result = {
+                self.result.update({
                     f'{year}_{chamber}_ie_support': ies.support_amount,
                     f'{year}_{chamber}_ie_oppose': ies.oppose_amount,
-                }
-            else:
-                ies_result = {
-                    f'{year}_{chamber}_ie_support': 0,
-                    f'{year}_{chamber}_ie_oppose': 0,
-                }
-            self.result.update(ies_result)
+                })
 
             candidate_rows = table.find('tbody').find_all('tr')
             for candidate_row in candidate_rows:
