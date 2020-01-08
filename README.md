@@ -40,7 +40,6 @@ Uses Requests, BeautifulSoup, Selenium, Pandas.
   * candidates' names; parties; incumbency; # of votes; voteshare; winner
 
 * candidate page:
-  * latest election: seat; date; votes; voteshare; names; winner; incumbency statuses; parties
   * campaign website
 
 <!-- ***
