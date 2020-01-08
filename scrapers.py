@@ -236,7 +236,7 @@ class CandidateCurrentElectionScraper:
     def _scrape_table(self):
         table = self.current_election_elem.find('table', class_='table')
         if table:
-            self.candidate_rows = table.find('tbody').find_all('tr')
+            self.candidate_rows = table.find('tbody').find_all('tr')[:2]
             for candidate_row in self.candidate_rows:
                 row_scraper = CurrentElectionCandidateRowScraper(candidate_row)
                 last_name = row_scraper.name.split(',', 1)[0]
@@ -290,7 +290,7 @@ class ElectionsScraper(Requester):
                     f'{year}_{chamber}_ie_oppose': ies.oppose_amount,
                 })
 
-            candidate_rows = table.find('tbody').find_all('tr')
+            candidate_rows = table.find('tbody').find_all('tr')[:2]
             for candidate_row in candidate_rows:
                 candidate_data = MoneyRaisedCandidateRowScraper(candidate_row).__dict__
                 if candidate_data["party"] in {'D', 'R'}:
