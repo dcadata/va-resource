@@ -263,7 +263,7 @@ class ElectionsScraper(Requester):
 
             candidate_rows = table.find('tbody').find_all('tr')
             for candidate_row in candidate_rows:
-                candidate_data = MoneyCandidateRowScraper(candidate_row).__dict__
+                candidate_data = MoneyRaisedCandidateRowScraper(candidate_row).__dict__
                 if candidate_data["party"] in {'D', 'R'}:
                     candidate_data_rekeyed = {}
                     for key, value in candidate_data.items():
@@ -388,7 +388,7 @@ class CandidateRowScraper:
     def _get_remaining_cells_data(self):
         pass
 
-class MoneyCandidateRowScraper(CandidateRowScraper):
+class MoneyRaisedCandidateRowScraper(CandidateRowScraper):
     def __init__(self, candidate_row):
         self.money_cell = None
         self.money_raised_text = None
@@ -404,5 +404,6 @@ class MoneyCandidateRowScraper(CandidateRowScraper):
         if self.money_cell:
             money_link_box = self.money_cell.find('a', {'href': lambda x: '/finance_summary/' in str(x)})
             if money_link_box:
+                # .get('href', None)
                 self.money_raised_text = money_link_box.text
                 self.money_raised = money_to_float(self.money_raised_text)
