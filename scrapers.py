@@ -161,7 +161,7 @@ class CandidateScraper(Requester):
         self._get_summary_data()
         self._get_sidebar_menu()
         self._get_ie_link()
-        del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box
+        del self.candidate_page_link, self.soup, self.summary_box, self.summary_para_box, self.sidebar_menu_items
 
     def _get_name(self):
         name_box = self.summary_box.find('h3', {'style': 'margin-top:0;'})
