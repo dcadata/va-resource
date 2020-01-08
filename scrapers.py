@@ -9,10 +9,10 @@ HOMEPAGE = 'https://www.vpap.org'
 def safe_int(text):
     text = text.strip()
     try:
-        floated = int(text)
+        inted = int(text)
     except TypeError:
-        floated = text
-    return floated
+        inted = text
+    return inted
 
 def money_to_float(money_text):
     if money_text:
