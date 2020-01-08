@@ -24,6 +24,16 @@ def money_to_float(money_text):
         money_amount = 0
     return money_amount
 
+def pct_to_float(pct_text):
+    if pct_text:
+        try:
+            pct_amount = float(pct_text.replace('%', '').replace(',', ''))
+        except TypeError:
+            pct_amount = 0
+    else:
+        pct_amount = 0
+    return pct_amount
+
 def get_text_from_elem(elem, result=None):
     try:
         text = elem.text
