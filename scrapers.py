@@ -24,7 +24,7 @@ def money_to_float(money_text):
     if money_text:
         try:
             money_amount = float(money_text.replace('$', '').replace(',', ''))
-        except TypeError:
+        except ValueError:
             money_amount = 0
     else:
         money_amount = 0
@@ -33,8 +33,8 @@ def money_to_float(money_text):
 def pct_to_float(pct_text):
     if pct_text:
         try:
-            pct_amount = float(pct_text.replace('%', '').replace(',', ''))
-        except TypeError:
+            pct_amount = float(pct_text.replace('%', '').replace(',', '').replace('-', ''))
+        except ValueError:
             pct_amount = 0
     else:
         pct_amount = 0
