@@ -222,10 +222,12 @@ class CandidateCurrentElectionScraper:
         if election_office_header_elem:
             election_office_rellink_elem = election_office_header_elem.find('a')
             if get_text_from_elem(election_office_rellink_elem):
-                self.result.update({
-                    'election_office': election_office_rellink_elem.text.strip(),
-                    'election_rellink': get('href', None),
-                })
+                office_text = election_office_rellink_elem.text.strip()
+                if office_text:
+                    self.result.update({
+                        'election_office': ' '.join(i.strip() for i in office_text.split('\n')),
+                        'election_rellink': election_office_rellink_elem.get('href', None),
+                    })
             election_date_elem = election_office_header_elem.find('span', class_='small')
             self.result.update({'election_date': get_text_from_elem(election_date_elem)})
 
