@@ -408,14 +408,15 @@ class CandidateRowScraper:
                 candidate_items = [i.strip() for i in self.candidate_cell.text.strip().split('\n')]
                 self.name, self.party, winner = (candidate_items + [None, None, None])[:3]
 
-                if self.name.endswith('*'):
-                    self.incumbency = True
-                    self.name = self.name.replace('*', '').strip()
-                else:
-                    self.incumbency = False
+                if 'Withdrawn Candidates' in self.name:
+                    if self.name.endswith('*'):
+                        self.incumbency = True
+                        self.name = self.name.replace('*', '').strip()
+                    else:
+                        self.incumbency = False
 
-                if self.party:
-                    self.party = self.party.replace('(', '').replace(')', '').strip()
+                    if self.party:
+                        self.party = self.party.replace('(', '').replace(')', '').strip()
 
     @abstractmethod
     def _get_remaining_cells(self):
