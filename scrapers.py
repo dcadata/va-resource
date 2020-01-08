@@ -269,7 +269,7 @@ class ElectionsScraper(Requester):
         election_name = election_data_link_box.text
         year = election_name.split(' ', 1)[0]
 
-        if year in {'2017', '2019'} and 'general' in election_name.lower():
+        if int(year) >= 2017 and 'general' in election_name.lower():
             if 'house of delegates' in election_name.lower() or 'assembly' in election_name.lower():
                 chamber = 'lower'
             elif 'state senate' in election_name.lower():
@@ -406,17 +406,16 @@ class CandidateRowScraper:
 
             if self.candidate_cell.text:
                 candidate_items = [i.strip() for i in self.candidate_cell.text.strip().split('\n')]
-                self.name, self.party, winner = (candidate_items + [None, None, None])[:3]
+                if len(candidate_items) > 1:
+                    self.name, self.party = candidate_items[:2]
+                    if not ('Withdrawn Candidates' in self.name or 'Did not seek' in self.name):
+                        if self.name.endswith('*'):
+                            self.incumbency = True
+                            self.name = self.name.replace('*', '').strip()
+                        else:
+                            self.incumbency = False
 
-                if 'Withdrawn Candidates' in self.name or 'Did not seek' in self.name:
-                    if self.name.endswith('*'):
-                        self.incumbency = True
-                        self.name = self.name.replace('*', '').strip()
-                    else:
-                        self.incumbency = False
-
-                    if self.party:
-                        self.party = self.party.replace('(', '').replace(')', '').strip()
+                        self.party = self.party[1]
 
     @abstractmethod
     def _get_remaining_cells(self):
