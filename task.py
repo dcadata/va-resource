@@ -116,7 +116,7 @@ class MultiCandidateResearcher:
 
 class Exporter:
     def __init__(self):
-        self.year = 2019
+        self.year = 2017
         self.chamber = 'lower'
         self.candidate_list = set(
             i.strip() for i in open(f'{self.year}_{self.chamber}_candidate_list.txt').read().strip().split('\n')
@@ -153,9 +153,9 @@ class Exporter:
         return condensed_all
 
     def _export_main_dataframes(self, full, full_all, condensed_all):
-        full.to_csv(f'{self.year}_{self.chamber}_full_new.csv', index=False)
-        full_all.to_csv(f'data/{self.year}_{self.chamber}_full.csv', index=False)
-        condensed_all.to_csv(f'data/{self.year}_{self.chamber}_condensed.csv', index=False)
+        full.to_csv(f'data_test/{self.year}_{self.chamber}_full_new.csv', index=False)
+        full_all.to_csv(f'data_test/{self.year}_{self.chamber}_full.csv', index=False)
+        condensed_all.to_csv(f'data_test/{self.year}_{self.chamber}_condensed.csv', index=False)
 
     def _export_contingency_dataframes(self, mcr):
         full_dropped = mcr.full.drop_duplicates(subset=['search_string'], keep='last').dropna(subset=['search_string'])
@@ -165,7 +165,8 @@ class Exporter:
 
         if mcr.errors:
             errors = DataFrame(mcr.errors)
-            errors.to_csv(f'{self.year}_{self.chamber}_errors.csv', index=False)
+            errors.to_csv(f'data_test/{self.year}_{self.chamber}_errors.csv', index=False)
+
 
 def main():
     ex = Exporter()
