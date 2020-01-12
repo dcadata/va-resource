@@ -164,6 +164,7 @@ class CandidateScraper(Requester):
         self.name = None
         self.summary = None
         self.has_ie = None
+        self.has_federal = None
         super().__init__(url=self.candidate_page_link)
         self._scrape()
 
@@ -172,6 +173,7 @@ class CandidateScraper(Requester):
         self.summary_box = self.soup.find('div', {'style': 'float:left;'})
         self._get_name()
         self._get_summary_data()
+        self._get_has_federal()
         self._get_sidebar_menu()
         self._get_ie_link()
         self._get_current_election_data()
@@ -187,6 +189,17 @@ class CandidateScraper(Requester):
         if self.summary_para_box:
             self.summary = self.summary_para_box.text
             self.summary = self.summary.strip().split('\n')[0].strip()
+
+    def _get_has_federal(self):
+        federal_button_elem = self.soup.find(
+            'a', class_='btn', attrs={'type': 'button', 'href': lambda x: str(x).startswith('/candidates/federal/')}
+        )
+        if not federal_button_elem:
+            federal_button_elem = self.soup.find(
+                'a', class_='btn', attrs={'type': 'button'}, text='As Federal Candidate'
+            )
+
+        self.has_federal = bool(federal_button_elem)
 
     def _get_sidebar_menu(self):
         self.sidebar_menu = self.soup.find('ul', class_='vsubmenu')
