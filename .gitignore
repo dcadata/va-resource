@@ -1,5 +1,6 @@
 __pycache__/
 .idea/
+data_test/
 geckodriver.log
 /*.csv
 *.txt
