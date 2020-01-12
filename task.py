@@ -21,7 +21,11 @@ class CandidateResearcher:
 
     def _scrape_data(self):
         search = Searcher(self.candidate_name)
+
         cand = CandidateScraper(search.candidate_page_link)
+        if cand.as_federal_link:
+            cand = CandidateScraper(cand.as_state_link)
+
         elec = ElectionsScraper(
             search.elections_page_link,
             vpap_candidate_num=cand.vpap_candidate_num, has_ie=cand.has_ie, driver=self.driver

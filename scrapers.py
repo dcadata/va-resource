@@ -220,10 +220,11 @@ class CandidateScraper(Requester):
 
     def _get_current_election_data(self):
         show_all_elections_link_elem = self.soup.find('a', text=lambda x: 'Show all elections for' in str(x))
-        current_election_elem = show_all_elections_link_elem.find_parent('div', class_='panel-body')
+        if show_all_elections_link_elem:
+            current_election_elem = show_all_elections_link_elem.find_parent('div', class_='panel-body')
         # comment in HTML for this elem: shows the next upcoming election, unless there was an election recently,
         # in which case it displays the results
-        self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem, self.name).result)
+            self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem, self.name).result)
 
 class CandidateCurrentElectionScraper:
     def __init__(self, current_election_elem, candidate_name):
