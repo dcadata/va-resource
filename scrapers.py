@@ -59,10 +59,9 @@ class Requester:
 class Searcher(Requester):
     def __init__(self, candidate_name):
         self.search_string = candidate_name.strip()
-        self.homepage = HOMEPAGE
         self.candidate_page_link = ''
         self.candidate_page_name = None
-        super().__init__(url=self.homepage + '/search/', params={'q': self.search_string.lower()})
+        super().__init__(url=HOMEPAGE + '/search/', params={'q': self.search_string.lower()})
         self._search()
 
     def _search(self):
@@ -78,7 +77,7 @@ class Searcher(Requester):
             'elections_page_link': self.elections_page_link,
             'legislator_page_link': self.legislator_page_link,
         }
-        del self.search_string, self.homepage, self.soup, self.candidates_panel_heading, self.candidates_record_count
+        del self.search_string, self.soup, self.candidates_panel_heading, self.candidates_record_count
 
     def _get_candidate_panel_heading(self):
         self.candidates_panel_heading = self.soup.find('div', class_='panel-heading candidates')
@@ -99,7 +98,7 @@ class Searcher(Requester):
             'a', class_='list-group-item', attrs={'href': lambda x: '/candidates/' in str(x)}
         )
         if candidate_page_box:
-            self.candidate_page_link = self.homepage + candidate_page_box.get('href', '')
+            self.candidate_page_link = HOMEPAGE + candidate_page_box.get('href', '')
             self.candidate_page_name = candidate_page_box.find('span', class_='linklike').text
         else:
             raise AssertionError(f'No candidate pages found for search query "{self.search_string}".')
