@@ -48,6 +48,7 @@ def get_text_from_elem(elem, result=None):
     return text
 
 
+
 class Requester:
     def __init__(self, url, params=None):
         r = get(url, params=params, timeout=20)
@@ -55,6 +56,7 @@ class Requester:
         self.soup = BeautifulSoup(r.text, 'lxml')
         if not r.ok or not self.soup:
             raise AssertionError('Bad request and/or bad Soup')
+
 
 class Searcher(Requester):
     def __init__(self, candidate_name):
@@ -112,6 +114,7 @@ class Searcher(Requester):
     def _get_legislator_page_link(self):
         self.legislator_page_link = self.candidate_page_link.replace('candidates', 'legislators')
 
+
 class LegislatorScraper(Requester):
     def __init__(self, legislator_page_link):
         self.bio = {}
@@ -155,6 +158,7 @@ class LegislatorScraper(Requester):
             'bio_years_of_service': safe_int(bio_years_of_service),
         })
         del self.bio['bio_length_of_service']
+
 
 class CandidateScraper(Requester):
     def __init__(self, candidate_page_link):
@@ -225,6 +229,7 @@ class CandidateScraper(Requester):
             current_election_elem = show_all_elections_link_elem.find_parent('div', class_='panel-body')
             self.__dict__.update(CandidateCurrentElectionScraper(current_election_elem, self.name).result)
 
+
 class CandidateCurrentElectionScraper:
     def __init__(self, current_election_elem, candidate_name):
         self.current_election_elem = current_election_elem
@@ -263,6 +268,7 @@ class CandidateCurrentElectionScraper:
                     candidate = 'candidate' if last_name.lower() in self.candidate_name.lower() else 'opponent'
                     for key, value in CurrentElectionCandidateRowScraper(candidate_row).__dict__.items():
                         self.result.update({f'{candidate}_{key}': value})
+
 
 class ElectionsScraper(Requester):
     def __init__(self, elections_page_link, **kwargs):
@@ -318,6 +324,7 @@ class ElectionsScraper(Requester):
                     for key, value in candidate_data.items():
                         candidate_data_rekeyed.update({f'{year}_{chamber}_{key}_{candidate_data["party"]}': value})
                         self.result.update(candidate_data_rekeyed)
+
 
 class IEScraper:
     def __init__(self, driver, vpap_candidate_num, election_link):
@@ -396,6 +403,7 @@ class IEScraper:
         if not self.oppose_amount:
             self.oppose_amount = 0
 
+
 class CandidateRowScraper:
     def __init__(self, candidate_row):
         self.row = candidate_row
@@ -449,6 +457,7 @@ class CandidateRowScraper:
     def _get_remaining_cells_data(self):
         pass
 
+
 class MoneyRaisedCandidateRowScraper(CandidateRowScraper):
     def __init__(self, candidate_row):
         self.money_cell = None
@@ -468,6 +477,7 @@ class MoneyRaisedCandidateRowScraper(CandidateRowScraper):
                 # .get('href', None)
                 self.money_raised_text = money_link_box.text
                 self.money_raised = money_to_float(self.money_raised_text)
+
 
 class CurrentElectionCandidateRowScraper(CandidateRowScraper):
     def __init__(self, candidate_row):

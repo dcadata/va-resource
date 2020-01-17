@@ -83,6 +83,7 @@ class CandidateResearcher:
         raised = self.full.loc[0, f'{year}_{chamber}_money_raised_{party_letter}']
         self.full[f'{year}_{chamber}_raised'] = [raised]
 
+
 class MultiCandidateResearcher:
     def __init__(self):
         self.result = []
@@ -113,6 +114,7 @@ class MultiCandidateResearcher:
                     'candidate': candidate,
                     'error_message': str(exc),
                 })
+
 
 class Exporter:
     def __init__(self):
