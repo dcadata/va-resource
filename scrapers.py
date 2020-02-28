@@ -4,7 +4,9 @@ from bs4 import BeautifulSoup
 from time import sleep
 from selenium.common.exceptions import NoSuchElementException
 
+
 HOMEPAGE = 'https://www.vpap.org'
+
 
 def safe_int(text):
     if text:
