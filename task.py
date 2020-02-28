@@ -3,6 +3,7 @@ from selenium.webdriver.firefox.options import Options
 from pandas import DataFrame, concat, read_csv
 from scrapers import Searcher, LegislatorScraper, CandidateScraper, ElectionsScraper
 
+
 def fillna_with_didnotrun(df):
     for col in df.columns:
         if col.startswith('2019') or col.startswith('2017'):
