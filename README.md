@@ -2,9 +2,9 @@
 
 ## Data Collection (Scraping) Scripts
 
-These scripts enable you to scrape VPAP. They currently include only specific functionality that has been requested; however, they can be modified to add stuff.
+These scripts enable you to scrape VPAP. They currently include only functionality that has been requested, but can be extended to add more features.
 
-CSVs are published with data for specific requested candidates.
+CSVs are published (in the /data directory) with data for specific requested candidates.
 
 Uses Requests, BeautifulSoup, Selenium, Pandas.
 
