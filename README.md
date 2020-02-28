@@ -6,7 +6,7 @@ These scripts enable you to scrape VPAP. They currently include only functionali
 
 CSVs are published (in the /data directory) with data for specific requested candidates.
 
-Uses Requests, BeautifulSoup, Selenium, Pandas.
+Uses Python libraries Requests, BeautifulSoup, Selenium, Pandas.
 
 ***
 
