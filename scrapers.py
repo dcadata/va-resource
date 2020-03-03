@@ -50,7 +50,6 @@ def get_text_from_elem(elem, result=None):
     return text
 
 
-
 class Requester:
     def __init__(self, url, params=None):
         r = get(url, params=params, timeout=20)
